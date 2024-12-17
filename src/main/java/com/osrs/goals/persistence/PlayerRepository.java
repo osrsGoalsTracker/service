@@ -1,6 +1,6 @@
-package com.osrs.xpgoals.persistence;
+package com.osrs.goals.persistence;
 
-import com.osrs.xpgoals.model.Player;
+import com.osrs.goals.model.Player;
 import java.util.Optional;
 
 public interface PlayerRepository {

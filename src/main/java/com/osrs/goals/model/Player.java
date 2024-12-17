@@ -1,4 +1,4 @@
-package com.osrs.xpgoals.model;
+package com.osrs.goals.model;
 
 import lombok.Builder;
 import lombok.Data;

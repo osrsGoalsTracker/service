@@ -1,6 +1,6 @@
-# OSRS XP Goals Service
+# OSRS Goals Service
 
-A Java-based AWS Lambda service for tracking Old School RuneScape player XP goals.
+A Java-based AWS Lambda service for tracking Old School RuneScape player goals.
 
 ## Project Structure
 

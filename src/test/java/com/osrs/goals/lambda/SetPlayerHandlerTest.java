@@ -1,10 +1,11 @@
-package com.osrs.xpgoals.lambda;
+package com.osrs.goals.lambda;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.osrs.xpgoals.data.PlayerService;
-import com.osrs.xpgoals.persistence.DynamoDbPlayerRepository;
+import com.osrs.goals.data.PlayerService;
+import com.osrs.goals.model.Player;
+import com.osrs.goals.persistence.DynamoDbPlayerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
