@@ -1,7 +1,7 @@
-package com.osrs.xpgoals.data;
+package com.osrs.goals.data;
 
-import com.osrs.xpgoals.model.Player;
-import com.osrs.xpgoals.persistence.PlayerRepository;
+import com.osrs.goals.model.Player;
+import com.osrs.goals.persistence.PlayerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

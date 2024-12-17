@@ -1,7 +1,7 @@
-package com.osrs.xpgoals.data;
+package com.osrs.goals.data;
 
-import com.osrs.xpgoals.model.Player;
-import com.osrs.xpgoals.persistence.PlayerRepository;
+import com.osrs.goals.model.Player;
+import com.osrs.goals.persistence.PlayerRepository;
 import lombok.extern.log4j.Log4j2;
 
 import javax.inject.Inject;

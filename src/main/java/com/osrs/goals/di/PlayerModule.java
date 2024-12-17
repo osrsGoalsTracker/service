@@ -1,11 +1,11 @@
-package com.osrs.xpgoals.di;
+package com.osrs.goals.di;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.osrs.xpgoals.data.PlayerService;
-import com.osrs.xpgoals.persistence.DynamoDbPlayerRepository;
-import com.osrs.xpgoals.persistence.PlayerRepository;
+import com.osrs.goals.data.PlayerService;
+import com.osrs.goals.persistence.DynamoDbPlayerRepository;
+import com.osrs.goals.persistence.PlayerRepository;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 

@@ -1,4 +1,4 @@
-package com.osrs.xpgoals.lambda;
+package com.osrs.goals.lambda;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -6,9 +6,9 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.osrs.xpgoals.data.PlayerService;
-import com.osrs.xpgoals.di.PlayerModule;
-import com.osrs.xpgoals.model.Player;
+import com.osrs.goals.data.PlayerService;
+import com.osrs.goals.di.PlayerModule;
+import com.osrs.goals.model.Player;
 import lombok.extern.log4j.Log4j2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
