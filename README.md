@@ -11,14 +11,18 @@ The project consists of two main components:
 ## Prerequisites
 
 - Java 21
-- Maven
+- Gradle 8.5+ (or use the Gradle wrapper included in the project)
 
 ## Building the Service
 
 ### Build the Java Service
 
 ```bash
-mvn clean package
+# Build the project
+./gradlew build
+
+# Create a fat JAR with all dependencies (for AWS Lambda deployment)
+./gradlew buildFatJar
 ```
 
 ## Testing
@@ -26,7 +30,7 @@ mvn clean package
 ### Run Java Tests
 
 ```bash
-mvn test
+./gradlew test
 ```
 
 ## Development
