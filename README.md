@@ -33,6 +33,66 @@ The project consists of two main components:
 ./gradlew test
 ```
 
+## API Endpoints
+
+### Get Player OSRS Stats
+
+Retrieves the current OSRS stats for a player.
+
+```
+GET /players/{rsn}/stats
+```
+
+#### Parameters
+
+- `rsn` (path) - The RuneScape name of the player
+
+#### Responses
+
+- `200 OK` - Returns the player's stats
+- `400 Bad Request` - RSN is missing or empty
+- `404 Not Found` - Player stats not found
+- `502 Bad Gateway` - Error fetching stats from OSRS Hiscores
+
+#### Example Response (200 OK)
+
+```json
+{
+  "rsn": "player123",
+  "skills": [
+    {
+      "name": "Attack",
+      "level": 99,
+      "experience": 13034431
+    }
+  ],
+  "activities": [
+    {
+      "name": "Clue Scrolls (all)",
+      "rank": 12345,
+      "score": 100
+    }
+  ]
+}
+```
+
+### Set Player
+
+Creates or updates a player in the system.
+
+```
+PUT /players/{rsn}
+```
+
+#### Parameters
+
+- `rsn` (path) - The RuneScape name of the player
+
+#### Responses
+
+- `200 OK` - Player successfully created/updated
+- `400 Bad Request` - RSN is missing or empty
+
 ## Development
 
 The service follows a layered architecture:

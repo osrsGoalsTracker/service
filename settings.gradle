@@ -1,1 +1,8 @@
-rootProject.name = 'goals-service' 
+rootProject.name = 'goals-service'
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+} 

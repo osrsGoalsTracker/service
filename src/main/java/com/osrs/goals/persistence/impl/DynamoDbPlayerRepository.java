@@ -1,4 +1,4 @@
-package com.osrs.goals.persistence.PlayerRepositoryImpl;
+package com.osrs.goals.persistence.impl;
 
 import java.util.HashMap;
 import java.util.Map;

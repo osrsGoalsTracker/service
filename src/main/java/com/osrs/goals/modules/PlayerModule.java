@@ -4,25 +4,36 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.osrs.goals.data.PlayerService;
+import com.osrs.goals.external.OsrsStatsService;
+import com.osrs.goals.external.impl.DefaultOsrsStatsService;
 import com.osrs.goals.persistence.PlayerRepository;
-import com.osrs.goals.persistence.PlayerRepositoryImpl.DynamoDbPlayerRepository;
+import com.osrs.goals.persistence.impl.DynamoDbPlayerRepository;
+import com.osrs_hiscores_fetcher.api.OsrsHiscoresPlayerFetcher;
+import com.osrs_hiscores_fetcher.impl.fetcher.OsrsHiscoresPlayerFetcherImpl;
+import com.osrs_hiscores_fetcher.impl.service.HttpService;
+import com.osrs_hiscores_fetcher.impl.service.impl.HttpServiceImpl;
 
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 /**
- * Guice module for configuring player-related dependencies.
+ * Guice module for player-related dependencies.
  */
 public class PlayerModule extends AbstractModule {
+
     @Override
     protected void configure() {
-        // No bindings needed in configure() as we're using @Provides methods
+        bind(PlayerRepository.class).to(DynamoDbPlayerRepository.class).in(Singleton.class);
+        bind(OsrsStatsService.class).to(DefaultOsrsStatsService.class).in(Singleton.class);
+        bind(PlayerService.class).in(Singleton.class);
+        bind(OsrsHiscoresPlayerFetcher.class).to(OsrsHiscoresPlayerFetcherImpl.class).in(Singleton.class);
+        bind(HttpService.class).to(HttpServiceImpl.class).in(Singleton.class);
     }
 
     /**
-     * Provides a singleton DynamoDB client configured for US West 2 region.
+     * Provides a DynamoDbClient instance.
      *
-     * @return The configured DynamoDB client
+     * @return The DynamoDbClient instance
      */
     @Provides
     @Singleton
@@ -30,29 +41,5 @@ public class PlayerModule extends AbstractModule {
         return DynamoDbClient.builder()
                 .region(Region.US_WEST_2)
                 .build();
-    }
-
-    /**
-     * Provides a singleton PlayerRepository implementation.
-     *
-     * @param dynamoDbClient The DynamoDB client to use
-     * @return The configured PlayerRepository
-     */
-    @Provides
-    @Singleton
-    PlayerRepository providePlayerRepository(DynamoDbClient dynamoDbClient) {
-        return new DynamoDbPlayerRepository(dynamoDbClient);
-    }
-
-    /**
-     * Provides a singleton PlayerService.
-     *
-     * @param playerRepository The repository to use for player data
-     * @return The configured PlayerService
-     */
-    @Provides
-    @Singleton
-    PlayerService providePlayerService(PlayerRepository playerRepository) {
-        return new PlayerService(playerRepository);
     }
 } 

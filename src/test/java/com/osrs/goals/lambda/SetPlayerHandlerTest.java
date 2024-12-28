@@ -2,6 +2,7 @@ package com.osrs.goals.lambda;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,23 +13,19 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.osrs.goals.data.PlayerService;
-import com.osrs.goals.persistence.PlayerRepositoryImpl.DynamoDbPlayerRepository;
-
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
+import com.osrs.goals.model.Player;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for the SetPlayerHandler Lambda function.
  */
 public class SetPlayerHandlerTest {
-
     @Mock
-    private DynamoDbClient dynamoDbClient;
+    private PlayerService playerService;
 
     @Mock
     private Context context;
@@ -41,30 +38,30 @@ public class SetPlayerHandlerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(dynamoDbClient.putItem(any(PutItemRequest.class))).thenReturn(PutItemResponse.builder().build());
-        
-        DynamoDbPlayerRepository playerRepository = new DynamoDbPlayerRepository(dynamoDbClient);
-        PlayerService playerService = new PlayerService(playerRepository);
         handler = new SetPlayerHandler(playerService);
     }
 
     /**
-     * Tests successful saving of a player.
+     * Tests successful player save.
      */
     @Test
     void shouldSavePlayerSuccessfully() {
         // Arrange
-        APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent();
-        Map<String, String> pathParams = new HashMap<>();
-        pathParams.put("rsn", "test player");
-        request.setPathParameters(pathParams);
+        String rsn = "test player";
+        Map<String, String> pathParameters = new HashMap<>();
+        pathParameters.put("rsn", rsn);
+
+        APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent()
+                .withPathParameters(pathParameters);
+
+        when(playerService.getPlayer(rsn)).thenReturn(Optional.empty());
 
         // Act
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, context);
 
         // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode(), "Should successfully save player");
-        assertEquals("Player saved successfully", response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(playerService).savePlayer(any(Player.class));
     }
 
     /**
@@ -73,13 +70,14 @@ public class SetPlayerHandlerTest {
     @Test
     void shouldReturn400WhenRsnIsMissing() {
         // Arrange
-        APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent();
+        APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent()
+                .withPathParameters(new HashMap<>());
 
         // Act
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, context);
 
         // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return bad request when RSN is missing");
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("RSN is required in the path", response.getBody());
     }
 
@@ -89,16 +87,17 @@ public class SetPlayerHandlerTest {
     @Test
     void shouldReturn400WhenRsnIsEmpty() {
         // Arrange
-        APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent();
-        Map<String, String> pathParams = new HashMap<>();
-        pathParams.put("rsn", "  ");
-        request.setPathParameters(pathParams);
+        Map<String, String> pathParameters = new HashMap<>();
+        pathParameters.put("rsn", "  ");
+
+        APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent()
+                .withPathParameters(pathParameters);
 
         // Act
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, context);
 
         // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return bad request when RSN is empty");
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("RSN cannot be empty", response.getBody());
     }
 }
