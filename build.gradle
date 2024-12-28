@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'io.freefair.lombok' version '8.4'
+    id 'checkstyle'
 }
 
 group = 'com.osrs.goals'
@@ -9,6 +10,10 @@ version = '1.0-SNAPSHOT'
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
+
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
@@ -45,7 +50,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     
     // Testing Dependencies
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
     testImplementation 'org.mockito:mockito-core:5.8.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.8.0'
     testImplementation 'net.bytebuddy:byte-buddy:1.14.10'
@@ -56,7 +62,15 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
 
-test {
+testing {
+    suites {
+        test {
+            useJUnitJupiter('5.10.1')
+        }
+    }
+}
+
+tasks.named('test') {
     useJUnitPlatform()
     jvmArgs = [
         '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
@@ -75,4 +89,66 @@ tasks.register('buildFatJar', Jar) {
     from {
         configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
     }
-} 
+}
+
+// Git hooks configuration
+task checkGitHooks {
+    doLast {
+        def projectDir = project.projectDir
+        def hookFile = new File(projectDir, '.git/hooks/pre-push')
+        def installScript = new File(projectDir, 'scripts/install-hooks.sh')
+
+        if (!hookFile.exists() || !hookFile.canExecute()) {
+            println "Git hooks not found or not executable. Installing them now..."
+
+            if (!installScript.exists()) {
+                throw new GradleException("Cannot find scripts/install-hooks.sh")
+            }
+
+            // Make the install script executable
+            installScript.setExecutable(true)
+
+            // Execute the install script
+            def result = exec {
+                workingDir projectDir
+                commandLine 'sh', installScript.absolutePath
+                ignoreExitValue = true
+            }
+
+            if (result.exitValue != 0) {
+                throw new GradleException("Failed to install git hooks")
+            }
+        }
+    }
+}
+
+// Checkstyle configuration
+checkstyle {
+    toolVersion = '10.13.0'
+    config = resources.text.fromUri("https://raw.githubusercontent.com/osrsGoalsTracker/java-build-config/refs/heads/main/checkstyle/checkstyle.xml")
+    maxWarnings = 0
+    ignoreFailures = false
+    sourceSets = [sourceSets.main, sourceSets.test]
+}
+
+// Configure Checkstyle tasks
+tasks.withType(Checkstyle).configureEach {
+    exclude '**/build/**'
+    exclude '**/generated/**'
+    exclude '**/target/**'
+}
+
+// Make Checkstyle part of the build lifecycle
+tasks.named('build').configure {
+    dependsOn tasks.withType(Checkstyle)
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.google.guava:guava:33.0.0-jre'
+        exclude group: 'com.google.collections', module: 'google-collections'
+    }
+}
+
+// Make build task depend on checkGitHooks
+build.dependsOn checkGitHooks

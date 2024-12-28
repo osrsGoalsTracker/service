@@ -1,22 +1,26 @@
 package com.osrs.goals.lambda;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.osrs.goals.data.PlayerService;
-import com.osrs.goals.model.Player;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.osrs.goals.data.PlayerService;
+import com.osrs.goals.model.Player;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for the GetPlayerHandler Lambda function.
+ */
 public class GetPlayerHandlerTest {
     @Mock
     private PlayerService playerService;
@@ -26,14 +30,20 @@ public class GetPlayerHandlerTest {
 
     private GetPlayerHandler handler;
 
+    /**
+     * Sets up the test environment before each test.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         handler = new GetPlayerHandler(playerService);
     }
 
+    /**
+     * Tests successful retrieval of an existing player.
+     */
     @Test
-    void handleRequest_WhenPlayerExists_ReturnsSuccessResponse() {
+    void shouldReturnSuccessResponseWhenPlayerExists() {
         // Arrange
         String rsn = "testPlayer";
         Player player = Player.builder()
@@ -53,13 +63,16 @@ public class GetPlayerHandlerTest {
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, context);
 
         // Assert
-        assertEquals(200, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         String expectedJson = "{\"rsn\":\"testPlayer\",\"lastUpdated\":\"2023-12-05T00:00:00Z\"}";
         assertEquals(expectedJson, response.getBody());
     }
 
+    /**
+     * Tests handling of a request for a non-existent player.
+     */
     @Test
-    void handleRequest_WhenPlayerDoesNotExist_Returns404Response() {
+    void shouldReturn404WhenPlayerDoesNotExist() {
         // Arrange
         String rsn = "nonExistentPlayer";
         Map<String, String> pathParameters = new HashMap<>();
@@ -74,12 +87,15 @@ public class GetPlayerHandlerTest {
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, context);
 
         // Assert
-        assertEquals(404, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("Player not found", response.getBody());
     }
 
+    /**
+     * Tests handling of a request with missing RSN parameter.
+     */
     @Test
-    void handleRequest_WhenRsnIsMissing_Returns400Response() {
+    void shouldReturn400WhenRsnIsMissing() {
         // Arrange
         APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent()
                 .withPathParameters(new HashMap<>());
@@ -88,7 +104,7 @@ public class GetPlayerHandlerTest {
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, context);
 
         // Assert
-        assertEquals(400, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("RSN is required", response.getBody());
     }
-} 
+}

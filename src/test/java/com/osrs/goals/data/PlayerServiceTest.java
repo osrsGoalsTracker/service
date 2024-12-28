@@ -1,13 +1,14 @@
 package com.osrs.goals.data;
 
-import com.osrs.goals.model.Player;
-import com.osrs.goals.persistence.PlayerRepository;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Optional;
+import com.osrs.goals.model.Player;
+import com.osrs.goals.persistence.PlayerRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -15,6 +16,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for the PlayerService class.
+ */
 public class PlayerServiceTest {
 
     @Mock
@@ -22,14 +26,20 @@ public class PlayerServiceTest {
 
     private PlayerService playerService;
 
+    /**
+     * Sets up the test environment before each test.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         playerService = new PlayerService(playerRepository);
     }
 
+    /**
+     * Tests that getPlayer returns an empty Optional when the player doesn't exist.
+     */
     @Test
-    void getPlayer_WhenPlayerDoesNotExist_ReturnsEmptyOptional() {
+    void shouldReturnEmptyOptionalWhenPlayerDoesNotExist() {
         // Arrange
         String rsn = "nonExistentPlayer";
         when(playerRepository.getPlayer(rsn)).thenReturn(Optional.empty());
@@ -41,8 +51,11 @@ public class PlayerServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Tests that getPlayer returns the player when they exist.
+     */
     @Test
-    void getPlayer_WhenPlayerExists_ReturnsPlayer() {
+    void shouldReturnPlayerWhenPlayerExists() {
         // Arrange
         String rsn = "testPlayer";
         Player player = Player.builder()
@@ -59,8 +72,11 @@ public class PlayerServiceTest {
         assertEquals(rsn, result.get().getRsn());
     }
 
+    /**
+     * Tests that savePlayer sets the lastUpdated timestamp and saves the player.
+     */
     @Test
-    void savePlayer_ShouldSavePlayerWithLastUpdated() {
+    void shouldSetLastUpdatedAndSavePlayer() {
         // Arrange
         String rsn = "testPlayer";
         Player player = Player.builder()
@@ -73,4 +89,4 @@ public class PlayerServiceTest {
         // Assert
         verify(playerRepository).savePlayer(any(Player.class));
     }
-} 
+}

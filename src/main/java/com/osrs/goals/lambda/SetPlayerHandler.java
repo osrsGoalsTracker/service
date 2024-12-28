@@ -1,5 +1,7 @@
 package com.osrs.goals.lambda;
 
+import java.util.Map;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
@@ -7,22 +9,31 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.osrs.goals.data.PlayerService;
-import com.osrs.goals.di.PlayerModule;
 import com.osrs.goals.model.Player;
+import com.osrs.goals.modules.PlayerModule;
+
 import lombok.extern.log4j.Log4j2;
 
-import java.util.Map;
-
+/**
+ * Lambda handler for setting player data.
+ */
 @Log4j2
 public class SetPlayerHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private final PlayerService playerService;
 
+    /**
+     * Default constructor used by AWS Lambda.
+     */
     public SetPlayerHandler() {
         Injector injector = Guice.createInjector(new PlayerModule());
         this.playerService = injector.getInstance(PlayerService.class);
     }
 
-    // Constructor for testing
+    /**
+     * Constructor for testing.
+     *
+     * @param playerService The player service to use
+     */
     SetPlayerHandler(PlayerService playerService) {
         this.playerService = playerService;
     }
@@ -33,14 +44,14 @@ public class SetPlayerHandler implements RequestHandler<APIGatewayProxyRequestEv
             Map<String, String> pathParams = input.getPathParameters();
             if (pathParams == null || !pathParams.containsKey("rsn")) {
                 return new APIGatewayProxyResponseEvent()
-                        .withStatusCode(400)
+                        .withStatusCode(HttpStatus.BAD_REQUEST)
                         .withBody("RSN is required in the path");
             }
 
             String rsn = pathParams.get("rsn");
             if (rsn.trim().isEmpty()) {
                 return new APIGatewayProxyResponseEvent()
-                        .withStatusCode(400)
+                        .withStatusCode(HttpStatus.BAD_REQUEST)
                         .withBody("RSN cannot be empty");
             }
 
@@ -51,14 +62,14 @@ public class SetPlayerHandler implements RequestHandler<APIGatewayProxyRequestEv
             playerService.savePlayer(player);
 
             return new APIGatewayProxyResponseEvent()
-                    .withStatusCode(200)
+                    .withStatusCode(HttpStatus.OK)
                     .withBody("Player saved successfully");
 
         } catch (Exception e) {
             log.error("Error processing request", e);
             return new APIGatewayProxyResponseEvent()
-                    .withStatusCode(502)
+                    .withStatusCode(HttpStatus.BAD_GATEWAY)
                     .withBody(e.getMessage());
         }
     }
-} 
+}
