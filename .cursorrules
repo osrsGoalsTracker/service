@@ -1,0 +1,121 @@
+1.	SOLID Principles: Follow SOLID design principles within layers to ensure the code is reusable and well-structured.
+2.	Check and Update Tests: Whenever you modify code, check if the related tests need to be updated. If there are no tests, write them.
+3.	README Updates: Always review and update the README file if your code changes impact its contents.
+4.	Small and Reusable Code: Write functions and components that are small, modular, and reusable.
+5.	No Whitespace: Avoid unnecessary whitespace in your code.
+6.	Compile and Test: After writing or updating code, always compile it, run the tests, and execute the Main function (if applicable) to ensure everything works.
+7.	Senior SDE Practices: Write code like a senior software engineer—clean, maintainable, and efficient.
+8.	Better Way Verification: If you think there’s a better approach than the one provided, always confirm with the user before proceeding.
+9. Follow the following service architecture markdown:
+
+```
+### **LSA Reference**
+
+### **Use Case**
+
+LSA (Layered Service Architecture) is a variant of multilayer n-tier architecture pattern specifically tuned for service-oriented architecture (SOA). If a team is designing a new service, LSA is a good starting point. LSA is not very useful for standalone desktop applications, mobile applications, or monolithic web applications. However, frontend services which are part of SOA can use LSA.
+
+LSA is independent of programming paradigms and frameworks. For example, LSA can be used with object-oriented paradigm (e.g., with Java) as well as with multiparadigm implementations (e.g., with Go). It can be used with RPC SOA frameworks as well as with RESTful SOA frameworks.
+
+### **LSA Layers**
+
+Following diagram shows layering in LSA.
+
+[LSA-Diagram.png]
+
+1. **Service Abstraction Layer (SAL)**: Service Abstraction Layer decouples the service interface logic from domain logic. This decoupling is beneficial because service interfaces evolve independently of domain logic.
+
+   **Main Responsibilities**: Expose API endpoints, Interface with SOA framework
+
+2. **Domain Logic Layer (DLL)**: This is the core of the service where domain logic related to service responsibility is implemented.
+
+   Domain logic is defined as logic used for functionality that is exposed to other services. For example, a service that stores customer addresses exposes functionality to set/get customer addresses to other services. Domain logic for this service includes validation of the address to be set, generating an ID to identify a given address etc. Other functionalities like how to store address to a database or how to cache it for performance is not domain logic.
+
+3. **Domain Data Layer (DDL)**: Domain Data Layer decouples domain logic layer from the mechanisms. It provides **domain information** that domain logic layer needs in mechanism independent way.
+
+   **Main Responsibilities**: Decouple external dependencies and data store, Aggregate data if needed, Mechanism independent data processing (caching etc.).
+
+   This layer is crucial for:
+   - Managing data from multiple sources (services, databases)
+   - Implementing caching strategies
+   - Abstracting storage mechanisms
+   - Facilitating easier changes to data sources
+
+4. **Persistence Abstraction Layer (PAL)**: Persistence Abstraction Layer is responsible for CRUD functionality for persistent storage for the data that service **owns**. It interacts with database technologies like SQL databases, NoSQL databases, etc.
+
+5. **Dependency Abstraction Layer (DAL)**: Dependency Abstraction Layer implements the mechanisms to interface with external downstream services, send requests and process responses.
+
+### **Interlayer Interactions**
+
+1. Like any other layered architecture, interlayer interaction in LSA is possible only between adjacent layers. For example, Service Abstraction Layer can interact **only** with Domain Logic Layer. This interaction can be in the form of function calls, method calls or even queueing of work.
+
+2. Interaction is **always** initiated by layer on top. For example, Domain Logic layer can initiate interaction with Domain Data Layer but not with Service Abstraction Layer.
+
+3. Interaction is **always** in the form of request/response. Responses from the layer on the bottom can be synchronous or asynchronous.
+
+> 💡 In summary, LSA has 5 abstractions, 4 layers and 3 layer interaction rules. **Any design that follows this 5-4-3 specification can be said to follow LSA regardless of what frameworks or programming languages are used**.
+
+### **LSA with Java**
+
+When implementing LSA with Java, it's important to follow consistent naming and structure conventions across teams. This consistency helps new engineers quickly understand the codebase and makes design and code reviews more efficient.
+
+**It's important to note that LSA in Java still requires engineers to apply OO design principles like SOLID**. SOLID principles allow reuse/cohesion/coupling inside a layer when LSA mainly focuses on cohesion and decoupling between layers.
+
+### **LSA Objects**
+
+1. **Data Objects**: LSA recommends using request-scoped Plain Old Java Objects (POJOs) for data exchange between layers. This makes it easy to follow inter-layer interaction rules.
+
+2. **Behavior Objects**: LSA recommends using stateless objects for implementation of behavior. Each LSA layer is composed of multiple behavior objects. These objects in a layer are grouped together based on cohesive responsibilities. A group of such cohesive objects in a layer is called a **Layer Entity**.
+
+### **Data Object Types**
+
+LSA recommends categorizing state object types:
+
+1. **Service Abstraction Objects**: Objects used to exchange information with the clients. For example, API models or DTOs at the service interface level.
+
+2. **Domain Objects**: Objects that represent core domain concepts. For example, in an invoice service, Invoice and Transaction would be domain objects.
+
+3. **Persistence Objects**: Objects that handle persistence-related information, including storage-specific details like database keys and indexes.
+
+4. **External Objects**: Objects that represent data structures for external service interactions.
+
+5. **Data Transfer Objects**: Objects used to transfer data across layer boundaries.
+
+### **Behavior Object Types**
+
+LSA categorizes logic objects into:
+
+1. **Layer Entity Objects** and **Layer Internal Objects**: Both defined and implemented in a given layer. Entity Objects handle requests from above layers, while Internal Objects handle internal layer logic.
+
+2. **Utility Objects**: Layer-independent logic implementation that can be reused.
+
+### **LSA Java Packages**
+
+Recommended package structure:
+
+| Java Package | Objects in the package |
+|--------------|----------------------|
+| `com.<organization>.<servicename>.utils` | Utility Objects |
+| `com.<organization>.<servicename>.<layername>` | Entity Objects |
+| `com.<organization>.<servicename>.<layername>.internal` | Entity Internal Objects |
+| `com.<organization>.<servicename>.<layername>.pojo.dto` | Data Transfer Objects |
+| `com.<organization>.<servicename>.service.pojo.sao` | Service Abstraction Objects |
+| `com.<organization>.<servicename>.data.pojo.domain` | Domain Objects |
+| `com.<organization>.<servicename>.persistence.pojo.dao` | Persistence Objects |
+| `com.<organization>.<servicename>.dependency.pojo.external` | External Objects |
+
+Note: Teams can create separate packages for `interfaces`, `enums`, `converters` in the respective layer packages if required.
+
+### **Class Naming Conventions**
+
+While LSA doesn't mandate specific naming conventions, here are some common patterns:
+
+* Common suffixes for Boundary objects:
+    * `-Controller` or `-Resource` for Boundary Objects in SAL
+    * `-Service` for Boundary Objects in DLL
+    * `-Manager` for Boundary Objects in DDL
+    * `-Repository` for Boundary Objects in PAL
+    * `-Client` for Boundary Objects in DAL
+    * `-Utility` for Utility Objects
+
+```
