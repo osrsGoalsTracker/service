@@ -31,9 +31,6 @@ dependencies {
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
     implementation 'com.amazonaws:aws-lambda-java-events:3.11.4'
     
-    // AWS SDK DynamoDB
-    implementation 'software.amazon.awssdk:dynamodb:2.21.0'
-    
     // Guice
     implementation 'com.google.inject:guice:7.0.0'
     implementation 'javax.inject:javax.inject:1'
