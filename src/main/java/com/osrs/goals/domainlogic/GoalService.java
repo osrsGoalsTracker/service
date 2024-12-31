@@ -1,16 +1,15 @@
 package com.osrs.goals.domainlogic;
 
-import com.osrs.goals.service.pojo.sao.CreateGoalResponse;
+import com.osrs.goals.service.pojo.sao.GoalCreatorResponse;
 
 /**
- * Domain logic layer service interface for goal operations.
+ * Service for managing goals.
  */
 public interface GoalService {
     /**
      * Creates a new goal.
      *
-     * @return The created goal response
-     * @throws RuntimeException if there's an error creating the goal
+     * @return The created goal
      */
-    CreateGoalResponse createGoal();
+    GoalCreatorResponse createNewGoal();
 }

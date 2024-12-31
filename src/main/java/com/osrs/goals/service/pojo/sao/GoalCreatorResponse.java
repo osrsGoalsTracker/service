@@ -8,16 +8,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Response object for the create goal operation.
- * Contains the ID of the newly created goal.
+ * Response object for goal creation.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CreateGoalResponse {
+public class GoalCreatorResponse {
     private String id;
     private String createdAt;
-    private String updatedAt;
 }

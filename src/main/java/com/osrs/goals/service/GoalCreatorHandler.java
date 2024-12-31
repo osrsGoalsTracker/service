@@ -9,54 +9,52 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.osrs.goals.domainlogic.GoalService;
 import com.osrs.goals.modules.GoalModule;
-import com.osrs.goals.service.pojo.sao.CreateGoalResponse;
+import com.osrs.goals.service.pojo.sao.GoalCreatorResponse;
 
 import lombok.extern.log4j.Log4j2;
 
 /**
- * AWS Lambda handler for creating goals.
- * This class serves as the entry point for the Lambda function and coordinates
- * the request processing through the application layers.
+ * Lambda handler for creating new goals.
  */
 @Log4j2
-public class CreateGoalHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class GoalCreatorHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final int HTTP_OK = 200;
-    private static final int HTTP_SERVER_ERROR = 500;
 
     private final GoalService goalService;
 
     /**
      * Default constructor that uses Guice for dependency injection.
      */
-    public CreateGoalHandler() {
+    public GoalCreatorHandler() {
         this(Guice.createInjector(new GoalModule()).getInstance(GoalService.class));
     }
 
     /**
      * Constructor for testing purposes.
      *
-     * @param goalService The service for managing goals
+     * @param goalService The goal service to use
      */
     @Inject
-    CreateGoalHandler(GoalService goalService) {
+    GoalCreatorHandler(GoalService goalService) {
         this.goalService = goalService;
     }
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
-        try {
-            log.info("Handling create goal request");
-            CreateGoalResponse response = goalService.createGoal();
+        log.info("Received request to create goal");
 
-            return new APIGatewayProxyResponseEvent()
-                    .withStatusCode(HTTP_OK)
-                    .withBody(OBJECT_MAPPER.writeValueAsString(response));
+        GoalCreatorResponse response = goalService.createNewGoal();
+
+        APIGatewayProxyResponseEvent apiResponse = new APIGatewayProxyResponseEvent();
+        try {
+            apiResponse.setBody(OBJECT_MAPPER.writeValueAsString(response));
+            apiResponse.setStatusCode(HTTP_OK);
         } catch (Exception e) {
-            log.error("Error creating goal: {}", e.getMessage());
-            return new APIGatewayProxyResponseEvent()
-                    .withStatusCode(HTTP_SERVER_ERROR)
-                    .withBody(String.format("{\"message\":\"%s\"}", e.getMessage()));
+            log.error("Error creating goal", e);
+            throw new RuntimeException(e);
         }
+
+        return apiResponse;
     }
 }
