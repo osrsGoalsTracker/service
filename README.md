@@ -76,32 +76,57 @@ GET /players/{rsn}/stats
 #### Parameters
 - `rsn` (path) - The RuneScape name of the player
 
-#### Responses
-- `200 OK` - Returns the player's stats
-- `400 Bad Request` - RSN is missing or empty
-- `500 Internal Server Error` - Error processing request
-
-#### Example Response (200 OK)
+#### Response Format
 ```json
 {
-  "rsn": "player123",
-  "levels": {
-    "Attack": 99,
-    "Strength": 99,
-    "Defence": 99
-  },
-  "experience": {
-    "Attack": 13034431,
-    "Strength": 13034431,
-    "Defence": 13034431
-  },
-  "ranks": {
-    "Attack": 100000,
-    "Strength": 100000,
-    "Defence": 100000
-  }
+    "username": "string",
+    "skills": {
+        "skillName": {
+            "name": "string",
+            "rank": "integer",
+            "level": "integer",
+            "experience": "integer"
+        }
+        // ... other skills
+    },
+    "activities": {
+        "activityName": {
+            "name": "string",
+            "rank": "integer",
+            "score": "integer"
+        }
+        // ... other activities
+    }
 }
 ```
+
+#### Example Response
+```json
+{
+    "username": "Zezima",
+    "skills": {
+        "Attack": {
+            "name": "Attack",
+            "rank": 1337,
+            "level": 99,
+            "experience": 13034431
+        }
+        // ... other skills
+    },
+    "activities": {
+        "Clue Scrolls (all)": {
+            "name": "Clue Scrolls (all)",
+            "rank": 42,
+            "score": 500
+        }
+        // ... other activities
+    }
+}
+```
+
+#### Error Responses
+- `400 Bad Request` - If the RSN is null, empty, or contains only whitespace
+- `500 Internal Server Error` - If there's an error fetching the stats from OSRS Hiscores
 
 ## Project Structure
 
