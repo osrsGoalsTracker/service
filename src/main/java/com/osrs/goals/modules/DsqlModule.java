@@ -13,7 +13,8 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import lombok.extern.log4j.Log4j2;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dsql.DsqlUtilities;
 
@@ -22,6 +23,7 @@ import software.amazon.awssdk.services.dsql.DsqlUtilities;
  * This module provides database-related dependencies including connection pool
  * and entity manager factory.
  */
+@Log4j2
 public class DsqlModule extends AbstractModule {
     private static final String DB_URL_TEMPLATE = "jdbc:postgresql://%s/postgres?ssl=require";
     private static final String DB_USERNAME = "admin";
@@ -54,7 +56,8 @@ public class DsqlModule extends AbstractModule {
     @Provides
     @Singleton
     public DataSource provideDataSource() {
-        String dbHostname = parameterStoreConfig.getDbHostname();
+        log.info("Providing DataSource ARE WE HERE?");
+        String dbHostname = ".dsql.us-east-2.on.aws";
         String dbUrl = String.format(DB_URL_TEMPLATE, dbHostname);
 
         // Configure HikariCP
@@ -67,7 +70,7 @@ public class DsqlModule extends AbstractModule {
         // Generate and set the DSQL auth token
         final DsqlUtilities utilities = DsqlUtilities.builder()
                 .region(DB_REGION)
-                .credentialsProvider(ProfileCredentialsProvider.create())
+                .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
 
         final String token = utilities.generateDbConnectAdminAuthToken(builder -> builder

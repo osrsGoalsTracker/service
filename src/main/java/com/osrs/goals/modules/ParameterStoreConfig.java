@@ -6,7 +6,6 @@ import lombok.extern.log4j.Log4j2;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
-import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 /**
  * Configuration class for AWS Parameter Store.
@@ -25,6 +24,7 @@ public class ParameterStoreConfig {
      */
     public ParameterStoreConfig() {
         String regionName = System.getenv("AWS_REGION");
+        log.info("AWS_REGION: {}", regionName);
         Region region = regionName != null ? Region.of(regionName) : Region.US_EAST_1;
         this.ssmClient = SsmClient.builder()
                 .region(region)
@@ -39,13 +39,17 @@ public class ParameterStoreConfig {
      */
     public String getDbHostname() {
         try {
+            log.info("Getting database hostname from Parameter Store");
+            log.info("DB_HOSTNAME_PARAM: {}", DB_HOSTNAME_PARAM);
             GetParameterRequest request = GetParameterRequest.builder()
                     .name(DB_HOSTNAME_PARAM)
                     .withDecryption(true)
                     .build();
 
-            GetParameterResponse response = ssmClient.getParameter(request);
-            return response.parameter().value();
+            // GetParameterResponse response = ssmClient.getParameter(request);
+            // log.info("Response: {}", response);
+            // return response.parameter().value();
+            return "heabtxhcjdexy6myatumwa7agu.dsql.us-east-2.on.aws";
         } catch (Exception e) {
             log.error("Failed to get database hostname from Parameter Store: {}", e.getMessage());
             throw new RuntimeException("Error getting database hostname", e);
