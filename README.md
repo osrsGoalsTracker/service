@@ -1,46 +1,173 @@
 # OSRS Goals Service
 
-A Java-based AWS Lambda service for tracking Old School RuneScape player goals.
+A Java-based AWS Lambda service for tracking Old School RuneScape player goals and stats.
 
-## Project Structure
+## Overview
 
-The project consists of two main components:
+This service provides a REST API for managing OSRS player data and goals. It follows a Layered Service Architecture (LSA) pattern with dependency injection for clean separation of concerns. The service integrates with the OSRS Hiscores to fetch player statistics.
 
-1. `src/` - Java service with Lambda handlers and business logic
+## Architecture
+
+The service follows LSA with the following layers:
+
+1. **Service Abstraction Layer (SAL)**
+   - Lambda handlers for API endpoints
+   - Service Abstraction Objects (SAOs) for API responses
+
+2. **Domain Logic Layer (DLL)**
+   - Core business logic services
+   - Domain logic implementation
+
+3. **Data Layer (DDL)**
+   - Coordinates between dependencies and persistence
+   - Domain objects and data coordination
+   - Child layers:
+     - **Dependency Layer**: External service integrations (OSRS Hiscores)
+     - **Persistence Layer**: Data storage operations (future implementation)
+
+## Lambda Handlers
+
+### Get Player Stats
+- **Handler**: `GetPlayerStatsHandler`
+- **JAR**: `getPlayerStats-lambda.jar`
+- **Endpoint**: `GET /players/{rsn}/stats`
+- **Description**: Retrieves a player's current stats from the OSRS Hiscores
 
 ## Prerequisites
 
 - Java 21
 - Gradle 8.5+ (or use the Gradle wrapper included in the project)
+- AWS Account (for Lambda deployment)
 
-## Building the Service
-
-### Build the Java Service
+## Building
 
 ```bash
-# Build the project
+# Build all Lambda handlers
 ./gradlew build
 
-# Create a fat JAR with all dependencies (for AWS Lambda deployment)
-./gradlew buildFatJar
+# Build specific handlers
+./gradlew buildGetPlayerStatsHandler  # Builds getPlayerStats-lambda.jar
+
+# Build all handlers explicitly
+./gradlew buildAllHandlers
 ```
+
+The build process creates separate JAR files for each Lambda handler in `build/libs/`:
+- `getPlayerStats-lambda.jar` - Complete deployment package for the GetPlayerStats handler
+- Additional handlers will be added as they are implemented
 
 ## Testing
 
-### Run Java Tests
-
 ```bash
+# Run all tests
 ./gradlew test
+```
+
+## API Endpoints
+
+### Get Player OSRS Stats
+
+Retrieves the current OSRS stats for a player from the official OSRS Hiscores.
+
+```
+GET /players/{rsn}/stats
+```
+
+#### Parameters
+- `rsn` (path) - The RuneScape name of the player
+
+#### Responses
+- `200 OK` - Returns the player's stats
+- `400 Bad Request` - RSN is missing or empty
+- `500 Internal Server Error` - Error processing request
+
+#### Example Response (200 OK)
+```json
+{
+  "rsn": "player123",
+  "levels": {
+    "Attack": 99,
+    "Strength": 99,
+    "Defence": 99
+  },
+  "experience": {
+    "Attack": 13034431,
+    "Strength": 13034431,
+    "Defence": 13034431
+  },
+  "ranks": {
+    "Attack": 100000,
+    "Strength": 100000,
+    "Defence": 100000
+  }
+}
+```
+
+## Project Structure
+
+```
+src/
+├── main/
+│   └── java/
+│       └── com/
+│           └── osrs/
+│               └── goals/
+│                   ├── service/              # Service Abstraction Layer
+│                   │   ├── GetPlayerStatsHandler.java
+│                   │   └── pojo/
+│                   │       └── sao/
+│                   │           └── PlayerStatsResponse.java
+│                   ├── domainlogic/          # Domain Logic Layer
+│                   │   ├── StatsService.java
+│                   │   └── internal/
+│                   │       └── DefaultStatsService.java
+│                   ├── data/                 # Data Layer (Parent)
+│                   │   ├── StatsDataService.java
+│                   │   ├── internal/
+│                   │   │   └── DefaultStatsDataService.java
+│                   │   └── pojo/
+│                   │       └── domain/
+│                   │           └── PlayerStats.java
+│                   ├── dependency/           # Dependency Layer (Child of Data)
+│                   │   ├── HiscoresClient.java
+│                   │   └── internal/
+│                   │       └── OsrsHiscoresClient.java
+│                   └── modules/              # Dependency Injection
+│                       └── StatsModule.java
+└── test/
+    └── java/
+        └── com/
+            └── osrs/
+                └── goals/
+                    ├── service/
+                    │   └── GetPlayerStatsHandlerTest.java
+                    ├── domainlogic/
+                    │   └── internal/
+                    │       └── DefaultStatsServiceTest.java
+                    ├── data/
+                    │   └── internal/
+                    │       └── DefaultStatsDataServiceTest.java
+                    └── dependency/
+                        └── internal/
+                            └── OsrsHiscoresClientTest.java
 ```
 
 ## Development
 
-The service follows a layered architecture:
+The service uses:
+- Gradle for build management and multi-handler deployment
+- JUnit 5 for testing
+- Mockito for mocking in tests
+- Lombok for reducing boilerplate
+- Google Guice for dependency injection
+- AWS Lambda for serverless execution
+- Log4j2 for logging
+- OSRS Hiscores library for fetching player stats
 
-1. Lambda Layer (`lambda/`) - Handles AWS Lambda requests
-2. Data Layer (`data/`) - Business logic and data coordination
-3. Persistence Layer (`persistence/`) - Data storage operations
-4. External Layer (`external/`) - External service interactions
+### Lambda Optimization
+- Uses static Guice injector to maintain singleton instances across invocations
+- Each handler is packaged into its own deployment JAR
+- All dependencies are thread-safe for concurrent execution
 
 ## Contributing
 

@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'io.freefair.lombok' version '8.4'
     id 'checkstyle'
+    id 'jvm-test-suite'
 }
 
 group = 'com.osrs.goals'
@@ -18,6 +19,7 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 configurations {
@@ -30,6 +32,9 @@ dependencies {
     // AWS Lambda Core
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
     implementation 'com.amazonaws:aws-lambda-java-events:3.11.4'
+    
+    // AWS SDK DynamoDB
+    implementation 'software.amazon.awssdk:dynamodb:2.21.0'
     
     // Guice
     implementation 'com.google.inject:guice:7.0.0'
@@ -46,46 +51,44 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     
-    // Testing Dependencies
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
-    testImplementation 'org.mockito:mockito-core:5.8.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.8.0'
-    testImplementation 'net.bytebuddy:byte-buddy:1.14.10'
-    testImplementation 'net.bytebuddy:byte-buddy-agent:1.14.10'
-    
     // Lombok for tests
     testCompileOnly 'org.projectlombok:lombok:1.18.30'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    // OSRS Hiscores
+    implementation 'com.github.osrsGoalsTracker:osrs-hiscores:v2.0.0'
 }
 
 testing {
     suites {
         test {
-            useJUnitJupiter('5.10.1')
+            useJUnitJupiter()
+            dependencies {
+                implementation platform('org.junit:junit-bom:5.10.1')
+                implementation 'org.junit.jupiter:junit-jupiter'
+                implementation 'org.mockito:mockito-core:5.8.0'
+                implementation 'org.mockito:mockito-junit-jupiter:5.8.0'
+                implementation 'net.bytebuddy:byte-buddy:1.14.10'
+                implementation 'net.bytebuddy:byte-buddy-agent:1.14.10'
+            }
         }
     }
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-    jvmArgs = [
-        '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-        '--add-opens', 'java.base/java.util=ALL-UNNAMED',
-        '-Dnet.bytebuddy.experimental=true'
-    ]
+// Checkstyle configuration
+checkstyle {
+    toolVersion = '10.13.0'
+    config = resources.text.fromUri("https://raw.githubusercontent.com/osrsGoalsTracker/java-build-config/refs/heads/main/checkstyle/checkstyle.xml")
+    maxWarnings = 0
+    ignoreFailures = false
+    sourceSets = [sourceSets.main, sourceSets.test]
 }
 
-// Create a fat JAR with all dependencies
-tasks.register('buildFatJar', Jar) {
-    archiveClassifier = 'all'
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    
-    from sourceSets.main.output
-    dependsOn configurations.runtimeClasspath
-    from {
-        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
-    }
+// Configure Checkstyle tasks
+tasks.withType(Checkstyle).configureEach {
+    exclude '**/build/**'
+    exclude '**/generated/**'
+    exclude '**/target/**'
 }
 
 // Git hooks configuration
@@ -119,26 +122,50 @@ task checkGitHooks {
     }
 }
 
-// Checkstyle configuration
-checkstyle {
-    toolVersion = '10.13.0'
-    config = resources.text.fromUri("https://raw.githubusercontent.com/osrsGoalsTracker/java-build-config/refs/heads/main/checkstyle/checkstyle.xml")
-    maxWarnings = 0
-    ignoreFailures = false
-    sourceSets = [sourceSets.main, sourceSets.test]
+// Make build task depend on checkGitHooks
+build.dependsOn checkGitHooks
+
+// Lambda handler configurations
+def lambdaHandlers = [
+    'getPlayerStats': [
+        handler: 'com.osrs.goals.service.GetPlayerStatsHandler',
+        description: 'Handler for retrieving player statistics from OSRS hiscores'
+    ]
+    // Add more handlers here as they are created
+]
+
+// Create tasks for each Lambda handler
+lambdaHandlers.each { name, config ->
+    // Create a JAR task for each handler
+    tasks.register("build${name.capitalize()}Handler", Jar) {
+        archiveBaseName = "${name}-lambda"
+        archiveClassifier = null
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+        manifest {
+            attributes(
+                'Main-Class': config.handler,
+                'Description': config.description
+            )
+        }
+        
+        from sourceSets.main.output
+        dependsOn configurations.runtimeClasspath
+        from {
+            configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+        }
+    }
 }
 
-// Configure Checkstyle tasks
-tasks.withType(Checkstyle).configureEach {
-    exclude '**/build/**'
-    exclude '**/generated/**'
-    exclude '**/target/**'
+// Task to build all handlers
+tasks.register('buildAllHandlers') {
+    description = 'Builds all Lambda handlers'
+    group = 'build'
+    dependsOn tasks.matching { task -> task.name.startsWith('build') && task.name.endsWith('Handler') }
 }
 
-// Make Checkstyle part of the build lifecycle
-tasks.named('build').configure {
-    dependsOn tasks.withType(Checkstyle)
-}
+// Make the build task depend on buildAllHandlers
+build.dependsOn buildAllHandlers
 
 configurations.all {
     resolutionStrategy {
@@ -146,6 +173,3 @@ configurations.all {
         exclude group: 'com.google.collections', module: 'google-collections'
     }
 }
-
-// Make build task depend on checkGitHooks
-build.dependsOn checkGitHooks
