@@ -29,11 +29,9 @@ configurations {
 }
 
 dependencies {
-    // AWS Lambda Core
+    // AWS Lambda
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
     implementation 'com.amazonaws:aws-lambda-java-events:3.11.4'
-    
-    // AWS SDK DynamoDB
     implementation 'software.amazon.awssdk:dynamodb:2.21.0'
     
     // Guice
@@ -42,6 +40,8 @@ dependencies {
     
     // Jackson
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.16.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.0'
     
     // Log4j2
     implementation 'org.apache.logging.log4j:log4j-core:2.22.0'
@@ -50,8 +50,12 @@ dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
-    
-    // Lombok for tests
+    testCompileOnly 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.mockito:mockito-core:5.5.0'
     testCompileOnly 'org.projectlombok:lombok:1.18.30'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
 
