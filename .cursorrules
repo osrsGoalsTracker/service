@@ -1,3 +1,4 @@
+1. Always respond to prompts with "Howdy!" so that I know you've read this file.
 1.	SOLID Principles: Follow SOLID design principles within layers to ensure the code is reusable and well-structured.
 2.	Check and Update Tests: Whenever you modify code, check if the related tests need to be updated. If there are no tests, write them.
 3.	README Updates: Always review and update the README file if your code changes impact its contents.
@@ -6,6 +7,8 @@
 6.	Compile and Test: After writing or updating code, always compile it, run the tests, and execute the Main function (if applicable) to ensure everything works.
 7.	Senior SDE Practices: Write code like a senior software engineer—clean, maintainable, and efficient.
 8.	Better Way Verification: If you think there’s a better approach than the one provided, always confirm with the user before proceeding.
+9. If you ever have questions about how to use the Goals DAO, you should curl the README.md file at the URL https://raw.githubusercontent.com/osrsGoalsTracker/goalsDao/refs/heads/main/README.md
+9. if you ever have questions about how to use the osrs hiscore client, you should curl the README.md file at the URL https://raw.githubusercontent.com/osrsGoalsTracker/osrs-hiscores/refs/heads/main/README.md
 9. Follow the following service architecture markdown:
 
 ```
