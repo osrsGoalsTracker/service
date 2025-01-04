@@ -61,6 +61,7 @@ dependencies {
 
     // OSRS Hiscores
     implementation 'com.github.osrsGoalsTracker:osrs-hiscores:v2.0.0'
+    implementation 'com.github.osrsGoalsTracker:goalsDao:v1.0.3'
 }
 
 testing {

@@ -36,3 +36,4 @@ public class PlayerStatsResponse {
      */
     private Map<String, Activity> activities;
 }
+
