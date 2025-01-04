@@ -16,7 +16,7 @@ A Java service for tracking Old School RuneScape player goals and progress.
 
 ## Installation
 
-1. Install dependencies and build all Lambda handlers:
+1. Install dependencies:
 ```bash
 ./gradlew build
 ```
@@ -30,23 +30,24 @@ A Java service for tracking Old School RuneScape player goals and progress.
 
 The service is composed of multiple Lambda functions, each packaged as a separate JAR:
 
-- `getPlayerStats-lambda.jar` - Retrieves player statistics from OSRS Hiscores
-- `getUser-lambda.jar` - Retrieves user metadata
-- `createUser-lambda.jar` - Creates a new user account
-
 ### Building Individual Handlers
 
 Build specific Lambda handlers:
 ```bash
-# Build GetPlayerStats handler
+# Build GetPlayerStats handler (GET /users/{userId}/players/{rsn}/stats)
 ./gradlew buildGetPlayerStatsHandler
 
-# Build GetUser handler
+# Build GetUser handler (GET /users/{userId})
 ./gradlew buildGetUserHandler
 
-# Build CreateUser handler
+# Build CreateUser handler (POST /users)
 ./gradlew buildCreateUserHandler
 ```
+
+Each handler will be built into its own JAR file in `build/libs/`:
+- `getPlayerStats-lambda.jar` - Retrieves player statistics from OSRS Hiscores
+- `getUser-lambda.jar` - Retrieves user metadata
+- `createUser-lambda.jar` - Creates a new user account
 
 ### Building All Handlers
 
@@ -58,11 +59,6 @@ Build all Lambda handlers at once:
 # Or explicitly build all handlers
 ./gradlew buildAllHandlers
 ```
-
-The built JAR files will be located in `build/libs/`:
-- `getPlayerStats-lambda.jar`
-- `getUser-lambda.jar`
-- `createUser-lambda.jar`
 
 ## API Endpoints
 

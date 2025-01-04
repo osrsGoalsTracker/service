@@ -135,8 +135,15 @@ def lambdaHandlers = [
     'getPlayerStats': [
         handler: 'com.osrs.goals.service.GetPlayerStatsHandler',
         description: 'Handler for retrieving player statistics from OSRS hiscores'
+    ],
+    'getUser': [
+        handler: 'com.osrs.goals.service.GetUserHandler',
+        description: 'Handler for retrieving user metadata'
+    ],
+    'createUser': [
+        handler: 'com.osrs.goals.service.CreateUserHandler',
+        description: 'Handler for creating new users'
     ]
-    // Add more handlers here as they are created
 ]
 
 // Create tasks for each Lambda handler
