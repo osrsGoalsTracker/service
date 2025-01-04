@@ -1,206 +1,213 @@
 # OSRS Goals Service
 
-A Java-based AWS Lambda service for tracking Old School RuneScape player goals and stats.
+A Java service for tracking Old School RuneScape player goals and progress.
 
-## Overview
+## Features
 
-This service provides a REST API for managing OSRS player data and goals. It follows a Layered Service Architecture (LSA) pattern with dependency injection for clean separation of concerns. The service integrates with the OSRS Hiscores to fetch player statistics.
+- User management
+- Player statistics tracking
+- Goal tracking and progress monitoring
 
-## Architecture
+## Requirements
 
-The service follows LSA with the following layers:
+- JDK 21
+- Gradle 8.x
+- AWS CLI configured with appropriate credentials
 
-1. **Service Abstraction Layer (SAL)**
-   - Lambda handlers for API endpoints
-   - Service Abstraction Objects (SAOs) for API responses
+## Installation
 
-2. **Domain Logic Layer (DLL)**
-   - Core business logic services
-   - Domain logic implementation
-
-3. **Data Layer (DDL)**
-   - Coordinates between dependencies and persistence
-   - Domain objects and data coordination
-   - Child layers:
-     - **Dependency Layer**: External service integrations (OSRS Hiscores)
-     - **Persistence Layer**: Data storage operations (future implementation)
-
-## Lambda Handlers
-
-### Get Player Stats
-- **Handler**: `GetPlayerStatsHandler`
-- **JAR**: `getPlayerStats-lambda.jar`
-- **Endpoint**: `GET /players/{rsn}/stats`
-- **Description**: Retrieves a player's current stats from the OSRS Hiscores
-
-## Prerequisites
-
-- Java 21
-- Gradle 8.5+ (or use the Gradle wrapper included in the project)
-- AWS Account (for Lambda deployment)
-
-## Building
-
+1. Install dependencies and build all Lambda handlers:
 ```bash
-# Build all Lambda handlers
 ./gradlew build
-
-# Build specific handlers
-./gradlew buildGetPlayerStatsHandler  # Builds getPlayerStats-lambda.jar
-
-# Build all handlers explicitly
-./gradlew buildAllHandlers
 ```
 
-The build process creates separate JAR files for each Lambda handler in `build/libs/`:
-- `getPlayerStats-lambda.jar` - Complete deployment package for the GetPlayerStats handler
-- Additional handlers will be added as they are implemented
-
-## Testing
-
+2. Run tests:
 ```bash
-# Run all tests
 ./gradlew test
 ```
 
+## Lambda Handlers
+
+The service is composed of multiple Lambda functions, each packaged as a separate JAR:
+
+- `getPlayerStats-lambda.jar` - Retrieves player statistics from OSRS Hiscores
+- `getUser-lambda.jar` - Retrieves user metadata
+- `createUser-lambda.jar` - Creates a new user account
+
+### Building Individual Handlers
+
+Build specific Lambda handlers:
+```bash
+# Build GetPlayerStats handler
+./gradlew buildGetPlayerStatsHandler
+
+# Build GetUser handler
+./gradlew buildGetUserHandler
+
+# Build CreateUser handler
+./gradlew buildCreateUserHandler
+```
+
+### Building All Handlers
+
+Build all Lambda handlers at once:
+```bash
+# Using the build task (includes all handlers)
+./gradlew build
+
+# Or explicitly build all handlers
+./gradlew buildAllHandlers
+```
+
+The built JAR files will be located in `build/libs/`:
+- `getPlayerStats-lambda.jar`
+- `getUser-lambda.jar`
+- `createUser-lambda.jar`
+
 ## API Endpoints
 
-### Get Player OSRS Stats
+The service exposes the following endpoints through AWS API Gateway:
 
-Retrieves the current OSRS stats for a player from the official OSRS Hiscores.
+### POST /users
 
-```
-GET /players/{rsn}/stats
-```
+Creates a new user account.
 
-#### Parameters
-- `rsn` (path) - The RuneScape name of the player
-
-#### Response Format
+**Request Body:**
 ```json
 {
-    "username": "string",
-    "skills": {
-        "skillName": {
-            "name": "string",
-            "rank": "integer",
-            "level": "integer",
-            "experience": "integer"
+    "email": "string"
+}
+```
+
+**Response:**
+```json
+{
+    "userId": "string",
+    "email": "string",
+    "createdAt": "string",
+    "updatedAt": "string"
+}
+```
+
+### GET /users/{userId}
+
+Retrieves user metadata.
+
+**Parameters:**
+- `userId` (path parameter) - The user's unique identifier
+
+**Response:**
+```json
+{
+    "userId": "string",
+    "email": "string",
+    "createdAt": "string",
+    "updatedAt": "string"
+}
+```
+
+### GET /users/{userId}/players/{rsn}/stats
+
+Retrieves player's OSRS stats for a specific user's registered player.
+
+**Parameters:**
+- `userId` (path parameter) - The user's unique identifier
+- `rsn` (path parameter) - RuneScape username
+
+**Response:**
+```json
+{
+    "rsn": "string",
+    "stats": {
+        "overall": {
+            "rank": number,
+            "level": number,
+            "xp": number
         }
-        // ... other skills
-    },
-    "activities": {
-        "activityName": {
-            "name": "string",
-            "rank": "integer",
-            "score": "integer"
-        }
-        // ... other activities
     }
 }
 ```
 
-#### Example Response
-```json
-{
-    "username": "Zezima",
-    "skills": {
-        "Attack": {
-            "name": "Attack",
-            "rank": 1337,
-            "level": 99,
-            "experience": 13034431
-        }
-        // ... other skills
-    },
-    "activities": {
-        "Clue Scrolls (all)": {
-            "name": "Clue Scrolls (all)",
-            "rank": 42,
-            "score": 500
-        }
-        // ... other activities
-    }
-}
-```
+## Architecture
 
-#### Error Responses
-- `400 Bad Request` - If the RSN is null, empty, or contains only whitespace
-- `500 Internal Server Error` - If there's an error fetching the stats from OSRS Hiscores
+The service follows a layered service architecture (LSA) with the following layers:
 
-## Project Structure
+1. **Service Abstraction Layer (SAL)**
+   - Lambda handlers for API endpoints
+   - Request/response models
+   - Error handling
 
-```
-src/
-├── main/
-│   └── java/
-│       └── com/
-│           └── osrs/
-│               └── goals/
-│                   ├── service/              # Service Abstraction Layer
-│                   │   ├── GetPlayerStatsHandler.java
-│                   │   └── pojo/
-│                   │       └── sao/
-│                   │           └── PlayerStatsResponse.java
-│                   ├── domainlogic/          # Domain Logic Layer
-│                   │   ├── StatsService.java
-│                   │   └── internal/
-│                   │       └── DefaultStatsService.java
-│                   ├── data/                 # Data Layer (Parent)
-│                   │   ├── StatsDataService.java
-│                   │   ├── internal/
-│                   │   │   └── DefaultStatsDataService.java
-│                   │   └── pojo/
-│                   │       └── domain/
-│                   │           └── PlayerStats.java
-│                   ├── dependency/           # Dependency Layer (Child of Data)
-│                   │   ├── HiscoresClient.java
-│                   │   └── internal/
-│                   │       └── OsrsHiscoresClient.java
-│                   └── modules/              # Dependency Injection
-│                       └── StatsModule.java
-└── test/
-    └── java/
-        └── com/
-            └── osrs/
-                └── goals/
-                    ├── service/
-                    │   └── GetPlayerStatsHandlerTest.java
-                    ├── domainlogic/
-                    │   └── internal/
-                    │       └── DefaultStatsServiceTest.java
-                    ├── data/
-                    │   └── internal/
-                    │       └── DefaultStatsDataServiceTest.java
-                    └── dependency/
-                        └── internal/
-                            └── OsrsHiscoresClientTest.java
-```
+2. **Domain Logic Layer (DLL)**
+   - Business logic services
+   - Domain models
+   - Validation rules
+
+3. **Domain Data Layer (DDL)**
+   - Data access services
+   - Data transformation
+   - Caching (if needed)
+
+4. **Persistence Abstraction Layer (PAL)**
+   - Repository interfaces
+   - Data access objects (DAOs)
+   - Database interactions
+
+5. **Dependency Abstraction Layer (DAL)**
+   - External service clients
+   - Third-party integrations
+
+## Dependencies
+
+- AWS Lambda Core - Lambda function support
+- AWS Lambda Events - Event handling
+- AWS DynamoDB - Database operations
+- Google Guice - Dependency injection
+- Jackson - JSON serialization
+- Log4j2 - Logging
+- Lombok - Boilerplate reduction
+- JUnit 5 - Testing
+- Mockito - Mocking for tests
+
+## Infrastructure
+
+The service is deployed using AWS CDK with the following components:
+
+- API Gateway for REST endpoints
+- Lambda functions for business logic
+- DynamoDB tables for data storage
+- IAM roles and permissions
+
+For infrastructure deployment and management, see the [CDK README](../cdk/README.md).
 
 ## Development
 
-The service uses:
-- Gradle for build management and multi-handler deployment
-- JUnit 5 for testing
-- Mockito for mocking in tests
-- Lombok for reducing boilerplate
-- Google Guice for dependency injection
-- AWS Lambda for serverless execution
-- Log4j2 for logging
-- OSRS Hiscores library for fetching player stats
+### Building
+```bash
+./gradlew build
+```
 
-### Lambda Optimization
-- Uses static Guice injector to maintain singleton instances across invocations
-- Each handler is packaged into its own deployment JAR
-- All dependencies are thread-safe for concurrent execution
+### Testing
+```bash
+./gradlew test
+```
+
+### Code Style
+The project uses checkstyle for code style enforcement. Configuration is pulled from:
+```
+https://raw.githubusercontent.com/osrsGoalsTracker/java-build-config/refs/heads/main/checkstyle/checkstyle.xml
+```
+
+### Git Hooks
+The project includes pre-push hooks for code quality checks. These are installed automatically during build.
 
 ## Contributing
 
-1. Create a feature branch
-2. Make your changes
-3. Write tests
-4. Create a pull request
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT 
+This project is licensed under the MIT License - see the LICENSE file for details. 
