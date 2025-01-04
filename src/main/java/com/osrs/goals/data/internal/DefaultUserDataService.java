@@ -24,8 +24,7 @@ public class DefaultUserDataService implements UserDataService {
 
     @Override
     public User getUser(String userId) {
-        com.osrs.goals.persistence.pojo.dao.User persistenceUser = userRepository.getUser(userId);
-        return convertToUser(persistenceUser);
+        return convertToUser(userRepository.getUser(userId));
     }
 
     /**

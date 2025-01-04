@@ -9,6 +9,7 @@
 8.	Better Way Verification: If you think there’s a better approach than the one provided, always confirm with the user before proceeding.
 9. If you ever have questions about how to use the Goals DAO, you should curl the README.md file at the URL https://raw.githubusercontent.com/osrsGoalsTracker/goalsDao/refs/heads/main/README.md
 9. if you ever have questions about how to use the osrs hiscore client, you should curl the README.md file at the URL https://raw.githubusercontent.com/osrsGoalsTracker/osrs-hiscores/refs/heads/main/README.md
+9. avoid using full class paths in your code (like com.osrs.goals.persistence.pojo.dao.User), instead use the import statements to import the classes you need. If there are conflicts, try to be creative in order to avoid them.
 9. Follow the following service architecture markdown:
 
 ```
