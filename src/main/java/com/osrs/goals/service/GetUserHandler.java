@@ -2,9 +2,12 @@ package com.osrs.goals.service;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.osrs.goals.data.pojo.domain.User;
 import com.osrs.goals.domainlogic.UserService;
+import com.osrs.goals.modules.UserModule;
 import com.osrs.goals.service.pojo.sao.GetUserRequest;
 import com.osrs.goals.service.pojo.sao.GetUserResponse;
 
@@ -14,7 +17,16 @@ import com.osrs.goals.service.pojo.sao.GetUserResponse;
  * objects.
  */
 public class GetUserHandler implements RequestHandler<GetUserRequest, GetUserResponse> {
+    private static final Injector INJECTOR = Guice.createInjector(new UserModule());
     private final UserService userService;
+
+    /**
+     * Default constructor for AWS Lambda.
+     * This constructor is required by AWS Lambda to instantiate the handler.
+     */
+    public GetUserHandler() {
+        this(INJECTOR.getInstance(UserService.class));
+    }
 
     /**
      * Constructs a new GetUserHandler.

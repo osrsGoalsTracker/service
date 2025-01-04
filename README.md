@@ -90,7 +90,7 @@ Creates a new user account.
 Retrieves user metadata.
 
 **Parameters:**
-- `userId` (path parameter) - The user's unique identifier
+- `userId` (path parameter, required) - The user's unique identifier
 
 **Response:**
 ```json
@@ -102,13 +102,24 @@ Retrieves user metadata.
 }
 ```
 
+**Method Signature:**
+```java
+/**
+ * Retrieves a user by their unique identifier.
+ *
+ * @param userId The unique identifier of the user to retrieve
+ * @return The user with the specified ID
+ * @throws ResourceNotFoundException if the user does not exist
+ */
+User getUser(String userId) throws ResourceNotFoundException;
+```
+
 ### GET /users/{userId}/players/{rsn}/stats
 
 Retrieves player's OSRS stats for a specific user's registered player.
 
 **Parameters:**
-- `userId` (path parameter) - The user's unique identifier
-- `rsn` (path parameter) - RuneScape username
+- `rsn` (path parameter, required) - RuneScape username
 
 **Response:**
 ```json
@@ -123,6 +134,18 @@ Retrieves player's OSRS stats for a specific user's registered player.
     }
 }
 ```
+
+## Data Models
+
+### User
+The User model represents a user in the system. It contains the following fields:
+
+| Field | Type | Description | Required |
+|-------|------|-------------|-----------|
+| userId | String | Unique identifier for the user | Yes |
+| email | String | User's email address | Yes |
+| createdAt | LocalDateTime | Timestamp when the user was created | No |
+| updatedAt | LocalDateTime | Timestamp when the user was last updated | No |
 
 ## Architecture
 

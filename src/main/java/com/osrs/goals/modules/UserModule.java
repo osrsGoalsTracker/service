@@ -1,6 +1,8 @@
 package com.osrs.goals.modules;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.osrs.goals.data.UserDataService;
 import com.osrs.goals.data.internal.DefaultUserDataService;
 import com.osrs.goals.domainlogic.UserService;
@@ -8,6 +10,9 @@ import com.osrs.goals.domainlogic.internal.DefaultUserService;
 import com.osrs.goals.persistence.UserRepository;
 import com.osrs.goals.persistence.internal.DefaultUserRepository;
 import com.osrsGoalTracker.goals.dao.module.GoalsDaoModule;
+
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 /**
  * Guice module for configuring user-related dependencies.
@@ -21,5 +26,13 @@ public class UserModule extends AbstractModule {
         bind(UserRepository.class).to(DefaultUserRepository.class);
         bind(UserDataService.class).to(DefaultUserDataService.class);
         bind(UserService.class).to(DefaultUserService.class);
+    }
+
+    @Provides
+    @Singleton
+    DynamoDbClient provideDynamoDbClient() {
+        return DynamoDbClient.builder()
+                .region(Region.US_WEST_2)
+                .build();
     }
 }

@@ -1,8 +1,6 @@
 package com.osrs.goals.persistence.internal;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
+import com.google.inject.Inject;
 import com.osrs.goals.persistence.UserRepository;
 import com.osrs.goals.persistence.pojo.dao.User;
 import com.osrsGoalTracker.goals.dao.GoalsDao;
@@ -11,9 +9,10 @@ import com.osrsGoalTracker.goals.dao.entity.UserEntity;
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 
 /**
- * Default implementation of the UserRepository interface.
+ * Default implementation of UserRepository.
+ * This class handles persistence operations for User entities using the
+ * GoalsDao.
  */
-@Singleton
 public class DefaultUserRepository implements UserRepository {
     private final GoalsDao goalsDao;
 
