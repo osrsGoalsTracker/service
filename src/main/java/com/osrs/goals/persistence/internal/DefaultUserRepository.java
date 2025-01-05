@@ -3,33 +3,34 @@ package com.osrs.goals.persistence.internal;
 import com.google.inject.Inject;
 import com.osrs.goals.persistence.UserRepository;
 import com.osrs.goals.persistence.pojo.dao.User;
-import com.osrsGoalTracker.goals.dao.GoalsDao;
-import com.osrsGoalTracker.goals.dao.entity.UserEntity;
+import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
+import com.osrsGoalTracker.dao.goalTracker.entity.UserEntity;
 
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 
 /**
  * Default implementation of UserRepository.
  * This class handles persistence operations for User entities using the
- * GoalsDao.
+ * GoalTrackerDao.
  */
 public class DefaultUserRepository implements UserRepository {
-    private final GoalsDao goalsDao;
+    private final GoalTrackerDao goalTrackerDao;
 
     /**
      * Constructs a new DefaultUserRepository.
      *
-     * @param goalsDao The GoalsDao instance to use for persistence operations
+     * @param goalTrackerDao The GoalTrackerDao instance to use for persistence
+     *                       operations
      */
     @Inject
-    public DefaultUserRepository(GoalsDao goalsDao) {
-        this.goalsDao = goalsDao;
+    public DefaultUserRepository(GoalTrackerDao goalTrackerDao) {
+        this.goalTrackerDao = goalTrackerDao;
     }
 
     @Override
     public User getUser(String userId) throws ResourceNotFoundException {
         try {
-            UserEntity userEntity = goalsDao.getUser(userId);
+            UserEntity userEntity = goalTrackerDao.getUser(userId);
             return convertToUser(userEntity);
         } catch (Exception e) {
             throw ResourceNotFoundException.builder()

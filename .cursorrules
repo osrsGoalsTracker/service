@@ -1,3 +1,8 @@
+- Whenever you make code changes, check if the associated tests need to be changed. If you can't find any associated tests, write them. 
+- Whenever you write code, check if the contents of the README needs to be updated. 
+- Write functions and components in as small and reusable a manner as possible
+- Never leave whitespace
+- Whenever you write or update code, finish by compiling, running tests, and running the Main function (if applicable) to ensure its working
 - Always respond to prompts with "Howdy!" so that I know you've read this file.
 - Follow SOLID design principles within layers to ensure the code is reusable and well-structured.
 - Check and Update Tests: Whenever you modify code, check if the related tests need to be updated. If there are no tests, write them.
@@ -7,8 +12,8 @@
 - Compile and Test: After writing or updating code, always compile it, run the tests, and execute the Main function (if applicable) to ensure everything works.
 - Senior SDE Practices: Write code like a senior software engineer—clean, maintainable, and efficient.
 - always use Lombok to generate getters and setters
-- Better Way Verification: If you think there’s a better approach than the one provided, always confirm with the user before proceeding.
-- If you ever have questions about how to use the Goals DAO, you should curl the README.md file at the URL https://raw.githubusercontent.com/osrsGoalsTracker/goalsDao/refs/heads/main/README.md
+- Better Way Verification: If you think there's a better approach than the one provided, always confirm with the user before proceeding.
+- If you ever have questions about how to use the Goals Tracker DAO, you should curl the README.md file at the URL https://raw.githubusercontent.com/osrsGoalsTracker/goalTrackerDao/refs/heads/main/README.md
 - if you ever have questions about how to use the osrs hiscore client, you should curl the README.md file at the URL https://raw.githubusercontent.com/osrsGoalsTracker/osrs-hiscores/refs/heads/main/README.md
 - avoid using full class paths in your code (like com.osrs.goals.persistence.pojo.dao.User), instead use the import statements to import the classes you need. If there are conflicts, try to be creative in order to avoid them.
 - Always use 4 spaces for indentation.

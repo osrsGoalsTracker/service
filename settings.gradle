@@ -6,11 +6,13 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'goals-service'
+rootProject.name = 'service'
 
-// Check if local goalsDao exists and include it
-def localGoalsDaoDir = file('../goalsDao')
-if (localGoalsDaoDir.exists()) {
-    includeBuild('../goalsDao')
-    println "Including local goalsDao from ${localGoalsDaoDir.absolutePath}"
+// Check if local goalTrackerDao exists and include it
+def localGoalTrackerDaoDir = file('../goalTrackerDao')
+if (localGoalTrackerDaoDir.exists()) {
+    includeBuild('../goalTrackerDao')
+    println "Including local goalTrackerDao from ${localGoalTrackerDaoDir.absolutePath}"
+} else {
+    println "Local goalTrackerDao not found at ${localGoalTrackerDaoDir.absolutePath}"
 } 
