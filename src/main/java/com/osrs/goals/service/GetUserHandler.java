@@ -1,5 +1,7 @@
 package com.osrs.goals.service;
 
+import java.time.format.DateTimeFormatter;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.google.inject.Guice;
@@ -21,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GetUserHandler implements RequestHandler<GetUserRequest, GetUserResponse> {
     private static final Injector INJECTOR = Guice.createInjector(new UserModule());
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final UserService userService;
 
     /**
@@ -58,8 +61,8 @@ public class GetUserHandler implements RequestHandler<GetUserRequest, GetUserRes
         return GetUserResponse.builder()
                 .withUserId(user.getUserId())
                 .withEmail(user.getEmail())
-                .withCreatedAt(user.getCreatedAt())
-                .withUpdatedAt(user.getUpdatedAt())
+                .withCreatedAt(DATE_TIME_FORMATTER.format(user.getCreatedAt()))
+                .withUpdatedAt(DATE_TIME_FORMATTER.format(user.getUpdatedAt()))
                 .build();
     }
 }

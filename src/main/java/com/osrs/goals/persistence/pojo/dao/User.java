@@ -2,9 +2,12 @@ package com.osrs.goals.persistence.pojo.dao;
 
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+
 /**
  * Represents a user entity in the persistence layer.
  */
+@Getter
 public final class User {
     private final String userId;
     private final String email;
@@ -16,42 +19,6 @@ public final class User {
         this.email = builder.email;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
-    }
-
-    /**
-     * Gets the user's unique identifier.
-     *
-     * @return The user ID
-     */
-    public String getUserId() {
-        return userId;
-    }
-
-    /**
-     * Gets the user's email address.
-     *
-     * @return The email address
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Gets the timestamp when the user was created.
-     *
-     * @return The creation timestamp
-     */
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    /**
-     * Gets the timestamp when the user was last updated.
-     *
-     * @return The last update timestamp
-     */
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     /**

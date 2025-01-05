@@ -1,9 +1,14 @@
 package com.osrs.goals.service.pojo.sao;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Request object for the getUser Lambda function.
  * Contains the user ID to retrieve.
  */
+@Getter
+@Setter
 public class GetUserRequest {
     private String userId;
 
@@ -11,23 +16,5 @@ public class GetUserRequest {
      * Default constructor for JSON deserialization.
      */
     public GetUserRequest() {
-    }
-
-    /**
-     * Gets the user ID to retrieve.
-     *
-     * @return The user ID
-     */
-    public String getUserId() {
-        return userId;
-    }
-
-    /**
-     * Sets the user ID to retrieve.
-     *
-     * @param userId The user ID to set
-     */
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 }

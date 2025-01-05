@@ -1,58 +1,23 @@
 package com.osrs.goals.service.pojo.sao;
 
-import java.time.LocalDateTime;
+import lombok.Getter;
 
 /**
  * Response object for the getUser Lambda function.
  * Contains user metadata including ID, email, and timestamps.
  */
+@Getter
 public final class GetUserResponse {
     private final String userId;
     private final String email;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    private final String createdAt;
+    private final String updatedAt;
 
     private GetUserResponse(Builder builder) {
         this.userId = builder.userId;
         this.email = builder.email;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
-    }
-
-    /**
-     * Gets the user's unique identifier.
-     *
-     * @return The user ID
-     */
-    public String getUserId() {
-        return userId;
-    }
-
-    /**
-     * Gets the user's email address.
-     *
-     * @return The email address
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Gets the timestamp when the user was created.
-     *
-     * @return The creation timestamp
-     */
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    /**
-     * Gets the timestamp when the user was last updated.
-     *
-     * @return The last update timestamp
-     */
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     /**
@@ -70,8 +35,8 @@ public final class GetUserResponse {
     public static class Builder {
         private String userId;
         private String email;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
+        private String createdAt;
+        private String updatedAt;
 
         /**
          * Sets the user ID.
@@ -101,7 +66,7 @@ public final class GetUserResponse {
          * @param createdAt The creation timestamp to set
          * @return This builder instance
          */
-        public Builder withCreatedAt(LocalDateTime createdAt) {
+        public Builder withCreatedAt(String createdAt) {
             this.createdAt = createdAt;
             return this;
         }
@@ -112,7 +77,7 @@ public final class GetUserResponse {
          * @param updatedAt The last update timestamp to set
          * @return This builder instance
          */
-        public Builder withUpdatedAt(LocalDateTime updatedAt) {
+        public Builder withUpdatedAt(String updatedAt) {
             this.updatedAt = updatedAt;
             return this;
         }
