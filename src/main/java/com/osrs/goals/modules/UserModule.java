@@ -11,7 +11,6 @@ import com.osrs.goals.persistence.UserRepository;
 import com.osrs.goals.persistence.internal.DefaultUserRepository;
 import com.osrsGoalTracker.goals.dao.module.GoalsDaoModule;
 
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 /**
@@ -31,8 +30,6 @@ public class UserModule extends AbstractModule {
     @Provides
     @Singleton
     DynamoDbClient provideDynamoDbClient() {
-        return DynamoDbClient.builder()
-                .region(Region.US_WEST_2)
-                .build();
+        return DynamoDbClient.create();
     }
 }
