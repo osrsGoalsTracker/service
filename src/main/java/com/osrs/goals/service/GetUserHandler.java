@@ -11,11 +11,14 @@ import com.osrs.goals.modules.UserModule;
 import com.osrs.goals.service.pojo.sao.GetUserRequest;
 import com.osrs.goals.service.pojo.sao.GetUserResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Lambda handler for retrieving user metadata.
  * This handler processes GetUserRequest events and returns GetUserResponse
  * objects.
  */
+@Slf4j
 public class GetUserHandler implements RequestHandler<GetUserRequest, GetUserResponse> {
     private static final Injector INJECTOR = Guice.createInjector(new UserModule());
     private final UserService userService;
@@ -40,6 +43,7 @@ public class GetUserHandler implements RequestHandler<GetUserRequest, GetUserRes
 
     @Override
     public GetUserResponse handleRequest(GetUserRequest request, Context context) {
+        log.info("getting user");
         User user = userService.getUser(request.getUserId());
         return convertToResponse(user);
     }

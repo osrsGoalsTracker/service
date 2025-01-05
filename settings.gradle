@@ -6,4 +6,11 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'goals-service' 
+rootProject.name = 'goals-service'
+
+// Check if local goalsDao exists and include it
+def localGoalsDaoDir = file('../goalsDao')
+if (localGoalsDaoDir.exists()) {
+    includeBuild('../goalsDao')
+    println "Including local goalsDao from ${localGoalsDaoDir.absolutePath}"
+} 
