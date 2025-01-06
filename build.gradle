@@ -97,21 +97,63 @@ testing {
     }
 }
 
-// Checkstyle configuration
+// Base Checkstyle configuration
 checkstyle {
     toolVersion = '10.13.0'
-    config = resources.text.fromUri("https://raw.githubusercontent.com/osrsGoalsTracker/java-build-config/refs/heads/main/checkstyle/checkstyle.xml")
     maxWarnings = 0
     ignoreFailures = false
-    sourceSets = [sourceSets.main, sourceSets.test]
+    showViolations = true
 }
 
-// Configure Checkstyle tasks
+// Create a task for the remote checkstyle
+task remoteCheckstyle(type: Checkstyle) {
+    description = 'Runs checkstyle against remote organization rules'
+    group = 'verification'
+    source 'src/main/java'
+    include '**/*.java'
+    classpath = files()
+    config = resources.text.fromUri("https://raw.githubusercontent.com/osrsGoalsTracker/java-build-config/refs/heads/main/checkstyle/checkstyle.xml")
+}
+
+// Create a task for the layered architecture checkstyle
+task layeredArchitectureCheckstyle(type: Checkstyle) {
+    description = 'Runs checkstyle against local layered architecture rules'
+    group = 'verification'
+    source 'src/main/java'
+    include '**/*.java'
+    classpath = files()
+    configFile = file("${project.rootDir}/config/checkstyle/layered-architecture.xml")
+    configDirectory = file("${project.rootDir}/config/checkstyle")
+}
+
+// Configure all checkstyle tasks
 tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
     exclude '**/build/**'
     exclude '**/generated/**'
     exclude '**/target/**'
 }
+
+// Disable the default checkstyle tasks
+tasks.named('checkstyleMain').configure {
+    enabled = false
+}
+
+tasks.named('checkstyleTest').configure {
+    enabled = false
+}
+
+// Create a new task to run both checkstyle configurations
+task allCheckstyle(group: 'verification') {
+    description = 'Runs all checkstyle checks'
+    dependsOn remoteCheckstyle, layeredArchitectureCheckstyle
+}
+
+// Make the check task depend on our custom checkstyle task instead
+check.dependsOn allCheckstyle
 
 // Git hooks configuration
 task checkGitHooks {
