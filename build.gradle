@@ -5,7 +5,7 @@ plugins {
     id 'jvm-test-suite'
 }
 
-group = 'com.osrs.goals'
+group = 'com.osrsGoalTracker'
 version = '1.0-SNAPSHOT'
 
 java {
