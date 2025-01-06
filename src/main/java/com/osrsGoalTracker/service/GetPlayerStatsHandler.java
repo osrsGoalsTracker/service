@@ -70,9 +70,9 @@ public class GetPlayerStatsHandler
                 return createErrorResponse(HTTP_BAD_REQUEST, "Path parameters cannot be null");
             }
 
-            String username = pathParameters.get("rsn");
+            String username = pathParameters.get("name");
             if (username == null || username.trim().isEmpty()) {
-                return createErrorResponse(HTTP_BAD_REQUEST, "Username cannot be null or empty");
+                return createErrorResponse(HTTP_BAD_REQUEST, "Name cannot be null or empty");
             }
 
             username = username.trim();

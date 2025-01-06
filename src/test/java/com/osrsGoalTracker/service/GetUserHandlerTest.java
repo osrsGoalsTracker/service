@@ -4,14 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.osrsGoalTracker.domainlogic.StatsService;
-import com.osrsGoalTracker.service.pojo.sao.PlayerStatsResponse;
+import com.osrsGoalTracker.data.pojo.domain.User;
+import com.osrsGoalTracker.domainlogic.UserService;
+import com.osrsGoalTracker.service.pojo.sao.GetUserResponse;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,33 +23,37 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class GetPlayerStatsHandlerTest {
+class GetUserHandlerTest {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final int HTTP_OK = 200;
     private static final int HTTP_BAD_REQUEST = 400;
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Mock
-    private StatsService statsService;
+    private UserService userService;
 
     @InjectMocks
-    private GetPlayerStatsHandler handler;
+    private GetUserHandler handler;
 
     @Test
-    void handleRequestShouldReturnPlayerStats() throws Exception {
+    void handleRequestShouldReturnUser() throws Exception {
         // Given
-        String username = "testUser";
+        String userId = "testUserId";
         Map<String, String> pathParameters = new HashMap<>();
-        pathParameters.put("name", username);
+        pathParameters.put("userId", userId);
 
         APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent()
                 .withPathParameters(pathParameters);
 
-        PlayerStatsResponse serviceResponse = PlayerStatsResponse.builder()
-                .skills(new HashMap<>())
-                .activities(new HashMap<>())
+        LocalDateTime now = LocalDateTime.now();
+        User user = User.builder()
+                .userId(userId)
+                .email("test@example.com")
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
 
-        when(statsService.getPlayerStats(username)).thenReturn(serviceResponse);
+        when(userService.getUser(userId)).thenReturn(user);
 
         // When
         APIGatewayProxyResponseEvent result = handler.handleRequest(request, null);
@@ -55,31 +62,37 @@ class GetPlayerStatsHandlerTest {
         assertEquals(HTTP_OK, result.getStatusCode());
         assertNotNull(result.getBody());
 
-        // Convert the expected response to JSON string
-        String expectedJson = OBJECT_MAPPER.writeValueAsString(serviceResponse);
+        GetUserResponse expectedResponse = GetUserResponse.builder()
+                .userId(userId)
+                .email("test@example.com")
+                .createdAt(DATE_TIME_FORMATTER.format(now))
+                .updatedAt(DATE_TIME_FORMATTER.format(now))
+                .build();
 
-        // Compare the JSON strings directly
+        String expectedJson = OBJECT_MAPPER.writeValueAsString(expectedResponse);
         assertEquals(expectedJson, result.getBody());
     }
 
     @Test
-    void handleRequestShouldTrimUsername() throws Exception {
+    void handleRequestShouldTrimUserId() throws Exception {
         // Given
-        String username = "  testUser  ";
-        String trimmedUsername = "testUser";
+        String userId = "  testUserId  ";
+        String trimmedUserId = "testUserId";
         Map<String, String> pathParameters = new HashMap<>();
-        pathParameters.put("name", username);
+        pathParameters.put("userId", userId);
 
         APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent()
                 .withPathParameters(pathParameters);
 
-        PlayerStatsResponse serviceResponse = PlayerStatsResponse.builder()
-                .username(trimmedUsername)
-                .skills(new HashMap<>())
-                .activities(new HashMap<>())
+        LocalDateTime now = LocalDateTime.now();
+        User user = User.builder()
+                .userId(trimmedUserId)
+                .email("test@example.com")
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
 
-        when(statsService.getPlayerStats(trimmedUsername)).thenReturn(serviceResponse);
+        when(userService.getUser(trimmedUserId)).thenReturn(user);
 
         // When
         APIGatewayProxyResponseEvent result = handler.handleRequest(request, null);
@@ -88,10 +101,14 @@ class GetPlayerStatsHandlerTest {
         assertEquals(HTTP_OK, result.getStatusCode());
         assertNotNull(result.getBody());
 
-        // Convert the expected response to JSON string
-        String expectedJson = OBJECT_MAPPER.writeValueAsString(serviceResponse);
+        GetUserResponse expectedResponse = GetUserResponse.builder()
+                .userId(trimmedUserId)
+                .email("test@example.com")
+                .createdAt(DATE_TIME_FORMATTER.format(now))
+                .updatedAt(DATE_TIME_FORMATTER.format(now))
+                .build();
 
-        // Compare the JSON strings directly
+        String expectedJson = OBJECT_MAPPER.writeValueAsString(expectedResponse);
         assertEquals(expectedJson, result.getBody());
     }
 
@@ -119,10 +136,10 @@ class GetPlayerStatsHandlerTest {
     }
 
     @Test
-    void handleRequestShouldReturn400WhenUsernameIsNull() {
+    void handleRequestShouldReturn400WhenUserIdIsNull() {
         // Given
         Map<String, String> pathParameters = new HashMap<>();
-        pathParameters.put("name", null);
+        pathParameters.put("userId", null);
 
         APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent()
                 .withPathParameters(pathParameters);
@@ -132,14 +149,14 @@ class GetPlayerStatsHandlerTest {
 
         // Then
         assertEquals(HTTP_BAD_REQUEST, result.getStatusCode());
-        assertEquals("{\"message\":\"Name cannot be null or empty\"}", result.getBody());
+        assertEquals("{\"message\":\"User ID cannot be null or empty\"}", result.getBody());
     }
 
     @Test
-    void handleRequestShouldReturn400WhenUsernameIsEmpty() {
+    void handleRequestShouldReturn400WhenUserIdIsEmpty() {
         // Given
         Map<String, String> pathParameters = new HashMap<>();
-        pathParameters.put("name", "");
+        pathParameters.put("userId", "");
 
         APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent()
                 .withPathParameters(pathParameters);
@@ -149,14 +166,14 @@ class GetPlayerStatsHandlerTest {
 
         // Then
         assertEquals(HTTP_BAD_REQUEST, result.getStatusCode());
-        assertEquals("{\"message\":\"Name cannot be null or empty\"}", result.getBody());
+        assertEquals("{\"message\":\"User ID cannot be null or empty\"}", result.getBody());
     }
 
     @Test
-    void handleRequestShouldReturn400WhenUsernameIsBlank() {
+    void handleRequestShouldReturn400WhenUserIdIsBlank() {
         // Given
         Map<String, String> pathParameters = new HashMap<>();
-        pathParameters.put("name", "   ");
+        pathParameters.put("userId", "   ");
 
         APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent()
                 .withPathParameters(pathParameters);
@@ -166,6 +183,6 @@ class GetPlayerStatsHandlerTest {
 
         // Then
         assertEquals(HTTP_BAD_REQUEST, result.getStatusCode());
-        assertEquals("{\"message\":\"Name cannot be null or empty\"}", result.getBody());
+        assertEquals("{\"message\":\"User ID cannot be null or empty\"}", result.getBody());
     }
 }
