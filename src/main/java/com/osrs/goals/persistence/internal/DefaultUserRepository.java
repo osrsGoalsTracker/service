@@ -40,6 +40,15 @@ public class DefaultUserRepository implements UserRepository {
         }
     }
 
+    @Override
+    public User createUser(String email) {
+        UserEntity userEntity = UserEntity.builder()
+                .email(email)
+                .build();
+        UserEntity createdUser = goalTrackerDao.createUser(userEntity);
+        return convertToUser(createdUser);
+    }
+
     /**
      * Converts a UserEntity from the persistence layer to a User domain object.
      *
@@ -48,10 +57,10 @@ public class DefaultUserRepository implements UserRepository {
      */
     private User convertToUser(UserEntity userEntity) {
         return User.builder()
-                .withUserId(userEntity.getUserId())
-                .withEmail(userEntity.getEmail())
-                .withCreatedAt(userEntity.getCreatedAt())
-                .withUpdatedAt(userEntity.getUpdatedAt())
+                .userId(userEntity.getUserId())
+                .email(userEntity.getEmail())
+                .createdAt(userEntity.getCreatedAt())
+                .updatedAt(userEntity.getUpdatedAt())
                 .build();
     }
 }

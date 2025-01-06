@@ -27,4 +27,9 @@ public class DefaultUserService implements UserService {
     public User getUser(String userId) {
         return userDataService.getUser(userId);
     }
+
+    @Override
+    public User createUser(String email) {
+        return userDataService.createUser(email);
+    }
 }

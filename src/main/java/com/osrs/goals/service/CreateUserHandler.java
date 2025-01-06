@@ -10,18 +10,18 @@ import com.google.inject.Injector;
 import com.osrs.goals.data.pojo.domain.User;
 import com.osrs.goals.domainlogic.UserService;
 import com.osrs.goals.modules.UserModule;
-import com.osrs.goals.service.pojo.sao.GetUserRequest;
+import com.osrs.goals.service.pojo.sao.CreateUserRequest;
 import com.osrs.goals.service.pojo.sao.GetUserResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Lambda handler for retrieving user metadata.
- * This handler processes GetUserRequest events and returns GetUserResponse
+ * Lambda handler for creating a new user.
+ * This handler processes CreateUserRequest events and returns GetUserResponse
  * objects.
  */
 @Slf4j
-public class GetUserHandler implements RequestHandler<GetUserRequest, GetUserResponse> {
+public class CreateUserHandler implements RequestHandler<CreateUserRequest, GetUserResponse> {
     private static final Injector INJECTOR = Guice.createInjector(new UserModule());
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final UserService userService;
@@ -30,24 +30,24 @@ public class GetUserHandler implements RequestHandler<GetUserRequest, GetUserRes
      * Default constructor for AWS Lambda.
      * This constructor is required by AWS Lambda to instantiate the handler.
      */
-    public GetUserHandler() {
+    public CreateUserHandler() {
         this(INJECTOR.getInstance(UserService.class));
     }
 
     /**
-     * Constructs a new GetUserHandler.
+     * Constructs a new CreateUserHandler.
      *
-     * @param userService The UserService instance to use for retrieving user data
+     * @param userService The UserService instance to use for user operations
      */
     @Inject
-    public GetUserHandler(UserService userService) {
+    public CreateUserHandler(UserService userService) {
         this.userService = userService;
     }
 
     @Override
-    public GetUserResponse handleRequest(GetUserRequest request, Context context) {
-        log.info("getting user");
-        User user = userService.getUser(request.getUserId());
+    public GetUserResponse handleRequest(CreateUserRequest request, Context context) {
+        log.info("Creating user with email: {}", request.getEmail());
+        User user = userService.createUser(request.getEmail());
         return convertToResponse(user);
     }
 
@@ -61,8 +61,8 @@ public class GetUserHandler implements RequestHandler<GetUserRequest, GetUserRes
         return GetUserResponse.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
-                .createdAt(DATE_TIME_FORMATTER.format(user.getCreatedAt()))
-                .updatedAt(DATE_TIME_FORMATTER.format(user.getUpdatedAt()))
+                .createdAt(user.getCreatedAt().format(DATE_TIME_FORMATTER))
+                .updatedAt(user.getUpdatedAt().format(DATE_TIME_FORMATTER))
                 .build();
     }
 }

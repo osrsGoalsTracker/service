@@ -6,13 +6,13 @@ import com.osrshiscores.apiclient.model.output.Activity;
 import com.osrshiscores.apiclient.model.output.Skill;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
 /**
  * Domain model representing a player's OSRS statistics.
  * This class contains the core data structure for player stats within the application.
  */
-@Data
+@Value
 @Builder
 public class PlayerStats {
     /**

@@ -16,4 +16,12 @@ public interface UserRepository {
      * @throws ResourceNotFoundException if the user does not exist
      */
     User getUser(String userId) throws ResourceNotFoundException;
+
+    /**
+     * Creates a new user with the given email address.
+     *
+     * @param email The email address for the new user
+     * @return The created User object
+     */
+    User createUser(String email);
 }

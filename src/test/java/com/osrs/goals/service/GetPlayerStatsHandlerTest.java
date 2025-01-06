@@ -7,17 +7,17 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osrs.goals.domainlogic.StatsService;
 import com.osrs.goals.service.pojo.sao.PlayerStatsResponse;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class GetPlayerStatsHandlerTest {
@@ -42,7 +42,8 @@ class GetPlayerStatsHandlerTest {
                 .withPathParameters(pathParameters);
 
         PlayerStatsResponse serviceResponse = PlayerStatsResponse.builder()
-                .username(username)
+                .skills(new HashMap<>())
+                .activities(new HashMap<>())
                 .build();
 
         when(statsService.getPlayerStats(username)).thenReturn(serviceResponse);
@@ -53,8 +54,12 @@ class GetPlayerStatsHandlerTest {
         // Then
         assertEquals(HTTP_OK, result.getStatusCode());
         assertNotNull(result.getBody());
-        PlayerStatsResponse responseBody = OBJECT_MAPPER.readValue(result.getBody(), PlayerStatsResponse.class);
-        assertEquals(username, responseBody.getUsername());
+
+        // Convert the expected response to JSON string
+        String expectedJson = OBJECT_MAPPER.writeValueAsString(serviceResponse);
+
+        // Compare the JSON strings directly
+        assertEquals(expectedJson, result.getBody());
     }
 
     @Test
@@ -70,6 +75,8 @@ class GetPlayerStatsHandlerTest {
 
         PlayerStatsResponse serviceResponse = PlayerStatsResponse.builder()
                 .username(trimmedUsername)
+                .skills(new HashMap<>())
+                .activities(new HashMap<>())
                 .build();
 
         when(statsService.getPlayerStats(trimmedUsername)).thenReturn(serviceResponse);
@@ -80,8 +87,12 @@ class GetPlayerStatsHandlerTest {
         // Then
         assertEquals(HTTP_OK, result.getStatusCode());
         assertNotNull(result.getBody());
-        PlayerStatsResponse responseBody = OBJECT_MAPPER.readValue(result.getBody(), PlayerStatsResponse.class);
-        assertEquals(trimmedUsername, responseBody.getUsername());
+
+        // Convert the expected response to JSON string
+        String expectedJson = OBJECT_MAPPER.writeValueAsString(serviceResponse);
+
+        // Compare the JSON strings directly
+        assertEquals(expectedJson, result.getBody());
     }
 
     @Test

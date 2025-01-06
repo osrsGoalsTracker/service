@@ -27,6 +27,11 @@ public class DefaultUserDataService implements UserDataService {
         return convertToUser(userRepository.getUser(userId));
     }
 
+    @Override
+    public User createUser(String email) {
+        return convertToUser(userRepository.createUser(email));
+    }
+
     /**
      * Converts a persistence User object to a domain User object.
      *
@@ -35,10 +40,10 @@ public class DefaultUserDataService implements UserDataService {
      */
     private User convertToUser(com.osrs.goals.persistence.pojo.dao.User persistenceUser) {
         return User.builder()
-                .withUserId(persistenceUser.getUserId())
-                .withEmail(persistenceUser.getEmail())
-                .withCreatedAt(persistenceUser.getCreatedAt())
-                .withUpdatedAt(persistenceUser.getUpdatedAt())
+                .userId(persistenceUser.getUserId())
+                .email(persistenceUser.getEmail())
+                .createdAt(persistenceUser.getCreatedAt())
+                .updatedAt(persistenceUser.getUpdatedAt())
                 .build();
     }
 }

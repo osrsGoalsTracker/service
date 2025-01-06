@@ -11,7 +11,7 @@
 - No Whitespace: Avoid unnecessary whitespace in your code.
 - Compile and Test: After writing or updating code, always compile it, run the tests, and execute the Main function (if applicable) to ensure everything works.
 - Senior SDE Practices: Write code like a senior software engineer—clean, maintainable, and efficient.
-- always use Lombok to generate getters and setters
+- Always use Lombok @Value and @Builder annotations for data objects. Use @Data with NoArgsConstructor for request objects.
 - Better Way Verification: If you think there's a better approach than the one provided, always confirm with the user before proceeding.
 - If you ever have questions about how to use the Goals Tracker DAO, you should curl the README.md file at the URL https://raw.githubusercontent.com/osrsGoalsTracker/goalTrackerDao/refs/heads/main/README.md
 - if you ever have questions about how to use the osrs hiscore client, you should curl the README.md file at the URL https://raw.githubusercontent.com/osrsGoalsTracker/osrs-hiscores/refs/heads/main/README.md
