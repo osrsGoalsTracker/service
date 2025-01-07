@@ -32,7 +32,8 @@ public class GetPlayerStatsHandler
 
     /**
      * Constructs a new GetPlayerStatsHandler.
-     * Initializes the dependency injection container and retrieves required services.
+     * Initializes the dependency injection container and retrieves required
+     * services.
      */
     public GetPlayerStatsHandler() {
         Injector injector = Guice.createInjector(new StatsModule());
@@ -52,7 +53,7 @@ public class GetPlayerStatsHandler
     /**
      * Handles the Lambda request to fetch player statistics.
      *
-     * @param input The API Gateway request event
+     * @param input   The API Gateway request event
      * @param context The Lambda execution context
      * @return API Gateway response containing the player's statistics
      */
@@ -60,41 +61,52 @@ public class GetPlayerStatsHandler
     public APIGatewayProxyResponseEvent handleRequest(
             final APIGatewayProxyRequestEvent input,
             final Context context) {
+        log.info("Received request to get player stats");
         try {
-            if (input == null) {
-                return createErrorResponse(HTTP_BAD_REQUEST, "Request cannot be null");
-            }
-
-            Map<String, String> pathParameters = input.getPathParameters();
-            if (pathParameters == null) {
-                return createErrorResponse(HTTP_BAD_REQUEST, "Path parameters cannot be null");
-            }
-
-            String username = pathParameters.get("name");
-            if (username == null || username.trim().isEmpty()) {
-                return createErrorResponse(HTTP_BAD_REQUEST, "Name cannot be null or empty");
-            }
-
-            username = username.trim();
-            log.info("Received request to get player stats for username: {}", username);
-            PlayerStatsResponse response = statsService.getPlayerStats(username);
-
-            APIGatewayProxyResponseEvent apiResponse = new APIGatewayProxyResponseEvent();
-            apiResponse.setStatusCode(HTTP_OK);
-            apiResponse.setBody(OBJECT_MAPPER.writeValueAsString(response));
-            return apiResponse;
+            String username = parseAndValidateInput(input);
+            PlayerStatsResponse response = executeRequest(username);
+            return createSuccessResponse(response);
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse(HTTP_BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
             log.error("Error processing request", e);
             return createErrorResponse(HTTP_SERVER_ERROR, "Error processing request: " + e.getMessage());
         }
     }
 
+    private String parseAndValidateInput(APIGatewayProxyRequestEvent input) {
+        if (input == null) {
+            throw new IllegalArgumentException("Request cannot be null");
+        }
+
+        Map<String, String> pathParameters = input.getPathParameters();
+        if (pathParameters == null) {
+            throw new IllegalArgumentException("Path parameters cannot be null");
+        }
+
+        String username = pathParameters.get("name");
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty");
+        }
+
+        return username.trim();
+    }
+
+    private PlayerStatsResponse executeRequest(String username) throws Exception {
+        log.info("Getting player stats for username: {}", username);
+        return statsService.getPlayerStats(username);
+    }
+
+    private APIGatewayProxyResponseEvent createSuccessResponse(PlayerStatsResponse response) throws Exception {
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(HTTP_OK)
+                .withBody(OBJECT_MAPPER.writeValueAsString(response));
+    }
+
     private APIGatewayProxyResponseEvent createErrorResponse(int statusCode, String message) {
         log.error(message);
-        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
-        response.setStatusCode(statusCode);
-        response.setBody(String.format("{\"message\":\"%s\"}", message));
-        return response;
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(statusCode)
+                .withBody(String.format("{\"message\":\"%s\"}", message));
     }
 }
-

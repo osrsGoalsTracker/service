@@ -53,33 +53,47 @@ public class CreateUserHandler implements RequestHandler<APIGatewayProxyRequestE
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+        log.info("Received request to create user");
         try {
-            if (input == null) {
-                return createErrorResponse(HTTP_BAD_REQUEST, "Request cannot be null");
-            }
-
-            String body = input.getBody();
-            if (body == null || body.trim().isEmpty()) {
-                return createErrorResponse(HTTP_BAD_REQUEST, "Request body cannot be null or empty");
-            }
-
-            CreateUserRequest request = OBJECT_MAPPER.readValue(body, CreateUserRequest.class);
-            if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-                return createErrorResponse(HTTP_BAD_REQUEST, "Email cannot be null or empty");
-            }
-
-            log.info("Creating user with email: {}", request.getEmail());
-            User user = userService.createUser(request.getEmail().trim());
-            GetUserResponse response = convertToResponse(user);
-
-            APIGatewayProxyResponseEvent apiResponse = new APIGatewayProxyResponseEvent();
-            apiResponse.setStatusCode(HTTP_OK);
-            apiResponse.setBody(OBJECT_MAPPER.writeValueAsString(response));
-            return apiResponse;
+            CreateUserRequest request = parseAndValidateInput(input);
+            GetUserResponse response = executeRequest(request);
+            return createSuccessResponse(response);
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse(HTTP_BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
             log.error("Error processing request", e);
             return createErrorResponse(HTTP_SERVER_ERROR, "Error processing request: " + e.getMessage());
         }
+    }
+
+    private CreateUserRequest parseAndValidateInput(APIGatewayProxyRequestEvent input) throws Exception {
+        if (input == null) {
+            throw new IllegalArgumentException("Request cannot be null");
+        }
+
+        String body = input.getBody();
+        if (body == null || body.trim().isEmpty()) {
+            throw new IllegalArgumentException("Request body cannot be null or empty");
+        }
+
+        CreateUserRequest request = OBJECT_MAPPER.readValue(body, CreateUserRequest.class);
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty");
+        }
+
+        return request;
+    }
+
+    private GetUserResponse executeRequest(CreateUserRequest request) {
+        log.info("Creating user with email: {}", request.getEmail());
+        User user = userService.createUser(request.getEmail().trim());
+        return convertToResponse(user);
+    }
+
+    private APIGatewayProxyResponseEvent createSuccessResponse(GetUserResponse response) throws Exception {
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(HTTP_OK)
+                .withBody(OBJECT_MAPPER.writeValueAsString(response));
     }
 
     /**
@@ -99,9 +113,8 @@ public class CreateUserHandler implements RequestHandler<APIGatewayProxyRequestE
 
     private APIGatewayProxyResponseEvent createErrorResponse(int statusCode, String message) {
         log.error(message);
-        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
-        response.setStatusCode(statusCode);
-        response.setBody(String.format("{\"message\":\"%s\"}", message));
-        return response;
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(statusCode)
+                .withBody(String.format("{\"message\":\"%s\"}", message));
     }
 }

@@ -26,6 +26,7 @@ public class AddPlayerToUserHandler
 
     /**
      * Constructor for AddPlayerToUserHandler.
+     * 
      * @param userService The user service to use for adding a player to a user.
      */
     @Inject
@@ -36,47 +37,62 @@ public class AddPlayerToUserHandler
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
         log.info("Received request to add player to user");
+        try {
+            UserPlayerPair userPlayerPair = parseAndValidateInput(input);
+            AddPlayerToUserResponse response = executeRequest(userPlayerPair);
+            return createSuccessResponse(response);
+        } catch (IllegalArgumentException e) {
+            return buildErrorResponse(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error processing request", e);
+            return buildErrorResponse("Error processing request: " + e.getMessage());
+        }
+    }
 
+    private record UserPlayerPair(String userId, String playerName) {
+    }
+
+    private UserPlayerPair parseAndValidateInput(APIGatewayProxyRequestEvent input) {
         if (input == null) {
-            log.error("Request cannot be null");
-            return buildErrorResponse("Request cannot be null");
+            throw new IllegalArgumentException("Request cannot be null");
         }
 
         Map<String, String> pathParameters = input.getPathParameters();
         if (pathParameters == null) {
-            log.error("Path parameters cannot be null");
-            return buildErrorResponse("Path parameters cannot be null");
+            throw new IllegalArgumentException("Path parameters cannot be null");
         }
 
         String userId = pathParameters.get("userId");
         String playerName = pathParameters.get("name");
 
         if (userId == null || userId.trim().isEmpty()) {
-            log.error("User ID cannot be null or empty");
-            return buildErrorResponse("User ID cannot be null or empty");
+            throw new IllegalArgumentException("User ID cannot be null or empty");
         }
 
         if (playerName == null || playerName.trim().isEmpty()) {
-            log.error("Player name cannot be null or empty");
-            return buildErrorResponse("Player name cannot be null or empty");
+            throw new IllegalArgumentException("Player name cannot be null or empty");
         }
 
-        userId = userId.trim();
-        playerName = playerName.trim();
+        return new UserPlayerPair(userId.trim(), playerName.trim());
+    }
 
-        userService.addPlayerToUser(userId, playerName);
-
-        AddPlayerToUserResponse response = AddPlayerToUserResponse.builder()
-                .userId(userId)
-                .playerName(playerName)
+    private AddPlayerToUserResponse executeRequest(UserPlayerPair userPlayerPair) {
+        log.info("Adding player {} to user {}", userPlayerPair.playerName(), userPlayerPair.userId());
+        userService.addPlayerToUser(userPlayerPair.userId(), userPlayerPair.playerName());
+        return AddPlayerToUserResponse.builder()
+                .userId(userPlayerPair.userId())
+                .playerName(userPlayerPair.playerName())
                 .build();
+    }
 
+    private APIGatewayProxyResponseEvent createSuccessResponse(AddPlayerToUserResponse response) {
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(HTTP_OK)
                 .withBody(JsonUtils.toJson(response));
     }
 
     private APIGatewayProxyResponseEvent buildErrorResponse(String message) {
+        log.error(message);
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(HTTP_BAD_REQUEST)
                 .withBody(String.format("{\"message\":\"%s\"}", message));

@@ -53,34 +53,47 @@ public class GetUserHandler implements RequestHandler<APIGatewayProxyRequestEven
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+        log.info("Received request to get user");
         try {
-            if (input == null) {
-                return createErrorResponse(HTTP_BAD_REQUEST, "Request cannot be null");
-            }
-
-            Map<String, String> pathParameters = input.getPathParameters();
-            if (pathParameters == null) {
-                return createErrorResponse(HTTP_BAD_REQUEST, "Path parameters cannot be null");
-            }
-
-            String userId = pathParameters.get("userId");
-            if (userId == null || userId.trim().isEmpty()) {
-                return createErrorResponse(HTTP_BAD_REQUEST, "User ID cannot be null or empty");
-            }
-
-            userId = userId.trim();
-            log.info("Received request to get user with ID: {}", userId);
-            User user = userService.getUser(userId);
-            GetUserResponse response = convertToResponse(user);
-
-            APIGatewayProxyResponseEvent apiResponse = new APIGatewayProxyResponseEvent();
-            apiResponse.setStatusCode(HTTP_OK);
-            apiResponse.setBody(OBJECT_MAPPER.writeValueAsString(response));
-            return apiResponse;
+            String userId = parseAndValidateInput(input);
+            GetUserResponse response = executeRequest(userId);
+            return createSuccessResponse(response);
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse(HTTP_BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
             log.error("Error processing request", e);
             return createErrorResponse(HTTP_SERVER_ERROR, "Error processing request: " + e.getMessage());
         }
+    }
+
+    private String parseAndValidateInput(APIGatewayProxyRequestEvent input) {
+        if (input == null) {
+            throw new IllegalArgumentException("Request cannot be null");
+        }
+
+        Map<String, String> pathParameters = input.getPathParameters();
+        if (pathParameters == null) {
+            throw new IllegalArgumentException("Path parameters cannot be null");
+        }
+
+        String userId = pathParameters.get("userId");
+        if (userId == null || userId.trim().isEmpty()) {
+            throw new IllegalArgumentException("User ID cannot be null or empty");
+        }
+
+        return userId.trim();
+    }
+
+    private GetUserResponse executeRequest(String userId) {
+        log.info("Getting user with ID: {}", userId);
+        User user = userService.getUser(userId);
+        return convertToResponse(user);
+    }
+
+    private APIGatewayProxyResponseEvent createSuccessResponse(GetUserResponse response) throws Exception {
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(HTTP_OK)
+                .withBody(OBJECT_MAPPER.writeValueAsString(response));
     }
 
     /**
@@ -100,9 +113,8 @@ public class GetUserHandler implements RequestHandler<APIGatewayProxyRequestEven
 
     private APIGatewayProxyResponseEvent createErrorResponse(int statusCode, String message) {
         log.error(message);
-        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
-        response.setStatusCode(statusCode);
-        response.setBody(String.format("{\"message\":\"%s\"}", message));
-        return response;
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(statusCode)
+                .withBody(String.format("{\"message\":\"%s\"}", message));
     }
 }

@@ -86,7 +86,7 @@ class GetPlayersForUserHandlerTest {
         APIGatewayProxyResponseEvent response = handler.handleRequest(null, context);
 
         assertEquals(400, response.getStatusCode());
-        assertEquals("Request cannot be null", response.getBody());
+        assertEquals("{\"message\":\"Request cannot be null\"}", response.getBody());
         verify(playerService, never()).getPlayersForUser(anyString());
     }
 
@@ -98,7 +98,7 @@ class GetPlayersForUserHandlerTest {
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, context);
 
         assertEquals(400, response.getStatusCode());
-        assertEquals("Path parameters cannot be null", response.getBody());
+        assertEquals("{\"message\":\"Path parameters cannot be null\"}", response.getBody());
         verify(playerService, never()).getPlayersForUser(anyString());
     }
 
@@ -112,7 +112,7 @@ class GetPlayersForUserHandlerTest {
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, context);
 
         assertEquals(400, response.getStatusCode());
-        assertEquals("User ID cannot be null or empty", response.getBody());
+        assertEquals("{\"message\":\"User ID cannot be null or empty\"}", response.getBody());
         verify(playerService, never()).getPlayersForUser(anyString());
     }
 
@@ -126,7 +126,7 @@ class GetPlayersForUserHandlerTest {
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, context);
 
         assertEquals(400, response.getStatusCode());
-        assertEquals("User ID cannot be null or empty", response.getBody());
+        assertEquals("{\"message\":\"User ID cannot be null or empty\"}", response.getBody());
         verify(playerService, never()).getPlayersForUser(anyString());
     }
 
@@ -140,7 +140,7 @@ class GetPlayersForUserHandlerTest {
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, context);
 
         assertEquals(400, response.getStatusCode());
-        assertEquals("User ID cannot be null or empty", response.getBody());
+        assertEquals("{\"message\":\"User ID cannot be null or empty\"}", response.getBody());
         verify(playerService, never()).getPlayersForUser(anyString());
     }
 

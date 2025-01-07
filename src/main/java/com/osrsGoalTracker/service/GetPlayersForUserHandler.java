@@ -40,7 +40,7 @@ public class GetPlayersForUserHandler
     }
 
     /**
-     * Allows injection of mock services in tests.
+     * Constructor for testing purposes.
      *
      * @param playerService The PlayerService instance to use for retrieving players
      */
@@ -52,32 +52,45 @@ public class GetPlayersForUserHandler
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
         log.info("Received request to get players for user");
+        try {
+            String userId = parseAndValidateInput(input);
+            List<PlayerEntity> players = executeRequest(userId);
+            return createSuccessResponse(userId, players);
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse(e.getMessage());
+        }
+    }
 
+    private String parseAndValidateInput(APIGatewayProxyRequestEvent input) {
         if (input == null) {
-            log.error("Request cannot be null");
-            return new APIGatewayProxyResponseEvent()
-                    .withStatusCode(HTTP_BAD_REQUEST)
-                    .withBody("Request cannot be null");
+            throw new IllegalArgumentException("Request cannot be null");
         }
 
         Map<String, String> pathParameters = input.getPathParameters();
         if (pathParameters == null) {
-            log.error("Path parameters cannot be null");
-            return new APIGatewayProxyResponseEvent()
-                    .withStatusCode(HTTP_BAD_REQUEST)
-                    .withBody("Path parameters cannot be null");
+            throw new IllegalArgumentException("Path parameters cannot be null");
         }
 
         String userId = pathParameters.get("userId");
         if (userId == null || userId.trim().isEmpty()) {
-            log.error("User ID cannot be null or empty");
-            return new APIGatewayProxyResponseEvent()
-                    .withStatusCode(HTTP_BAD_REQUEST)
-                    .withBody("User ID cannot be null or empty");
+            throw new IllegalArgumentException("User ID cannot be null or empty");
         }
 
-        userId = userId.trim();
-        List<PlayerEntity> players = playerService.getPlayersForUser(userId);
+        return userId.trim();
+    }
+
+    private List<PlayerEntity> executeRequest(String userId) {
+        return playerService.getPlayersForUser(userId);
+    }
+
+    /**
+     * Creates a success response with the list of players.
+     *
+     * @param userId  The user ID
+     * @param players The list of player entities
+     * @return The API Gateway response event
+     */
+    private APIGatewayProxyResponseEvent createSuccessResponse(String userId, List<PlayerEntity> players) {
         List<String> playerNames = players.stream()
                 .map(PlayerEntity::getName)
                 .collect(Collectors.toList());
@@ -90,5 +103,17 @@ public class GetPlayersForUserHandler
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(HTTP_OK)
                 .withBody(JsonUtils.toJson(response));
+    }
+
+    /**
+     * Creates an error response with the given message.
+     *
+     * @param message The error message
+     * @return The API Gateway response event
+     */
+    private APIGatewayProxyResponseEvent createErrorResponse(String message) {
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(HTTP_BAD_REQUEST)
+                .withBody(String.format("{\"message\":\"%s\"}", message));
     }
 }
