@@ -1,49 +1,58 @@
 package com.osrsGoalTracker.data.internal;
 
 import com.google.inject.Inject;
+import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
+import com.osrsGoalTracker.dao.goalTracker.entity.PlayerEntity;
 import com.osrsGoalTracker.data.UserDataService;
 import com.osrsGoalTracker.data.pojo.domain.User;
-import com.osrsGoalTracker.persistence.UserRepository;
 
 /**
  * Default implementation of the UserDataService interface.
  * This service provides methods to interact with user data in the data layer.
  */
 public class DefaultUserDataService implements UserDataService {
-    private final UserRepository userRepository;
+    private final GoalTrackerDao goalTrackerDao;
 
     /**
      * Constructs a new DefaultUserDataService.
      *
-     * @param userRepository The UserRepository instance to use for data operations
+     * @param goalTrackerDao The GoalTrackerDao instance to use for data operations
      */
     @Inject
-    public DefaultUserDataService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public DefaultUserDataService(GoalTrackerDao goalTrackerDao) {
+        this.goalTrackerDao = goalTrackerDao;
     }
 
     @Override
     public User getUser(String userId) {
-        return convertToUser(userRepository.getUser(userId));
+        return convertToUser(goalTrackerDao.getUser(userId));
     }
 
     @Override
     public User createUser(String email) {
-        return convertToUser(userRepository.createUser(email));
+        return convertToUser(goalTrackerDao.createUser(
+                com.osrsGoalTracker.dao.goalTracker.entity.UserEntity.builder()
+                        .email(email)
+                        .build()));
+    }
+
+    @Override
+    public PlayerEntity addPlayerToUser(String userId, String playerName) {
+        return goalTrackerDao.addPlayerToUser(userId, playerName);
     }
 
     /**
      * Converts a persistence User object to a domain User object.
      *
-     * @param persistenceUser The persistence User object to convert
+     * @param userEntity The persistence User object to convert
      * @return The converted domain User object
      */
-    private User convertToUser(com.osrsGoalTracker.persistence.pojo.dao.User persistenceUser) {
+    private User convertToUser(com.osrsGoalTracker.dao.goalTracker.entity.UserEntity userEntity) {
         return User.builder()
-                .userId(persistenceUser.getUserId())
-                .email(persistenceUser.getEmail())
-                .createdAt(persistenceUser.getCreatedAt())
-                .updatedAt(persistenceUser.getUpdatedAt())
+                .userId(userEntity.getUserId())
+                .email(userEntity.getEmail())
+                .createdAt(userEntity.getCreatedAt())
+                .updatedAt(userEntity.getUpdatedAt())
                 .build();
     }
 }

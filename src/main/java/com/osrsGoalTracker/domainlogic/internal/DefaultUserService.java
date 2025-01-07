@@ -1,6 +1,7 @@
 package com.osrsGoalTracker.domainlogic.internal;
 
 import com.google.inject.Inject;
+import com.osrsGoalTracker.dao.goalTracker.entity.PlayerEntity;
 import com.osrsGoalTracker.data.UserDataService;
 import com.osrsGoalTracker.data.pojo.domain.User;
 import com.osrsGoalTracker.domainlogic.UserService;
@@ -31,5 +32,10 @@ public class DefaultUserService implements UserService {
     @Override
     public User createUser(String email) {
         return userDataService.createUser(email);
+    }
+
+    @Override
+    public PlayerEntity addPlayerToUser(String userId, String playerName) {
+        return userDataService.addPlayerToUser(userId, playerName);
     }
 }

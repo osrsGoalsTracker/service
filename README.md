@@ -42,12 +42,16 @@ Build specific Lambda handlers:
 
 # Build CreateUser handler (POST /users)
 ./gradlew buildCreateUserHandler
+
+# Build AddPlayerToUser handler (POST /users/{userId}/players)
+./gradlew buildAddPlayerToUserHandler
 ```
 
 Each handler will be built into its own JAR file in `build/libs/`:
 - `getPlayerStats-lambda.jar` - Retrieves player statistics from OSRS Hiscores
 - `getUser-lambda.jar` - Retrieves user metadata
 - `createUser-lambda.jar` - Creates a new user account
+- `addPlayerToUser-lambda.jar` - Adds a RuneScape player to a user's account
 
 ### Building All Handlers
 
@@ -134,6 +138,25 @@ Retrieves player's OSRS stats for a specific user's registered player.
     }
 }
 ```
+
+### POST /users/{userId}/players/{name}
+Adds a RuneScape player to a user's account.
+
+#### Path Parameters
+- `userId` - The unique identifier of the user
+- `name` - The name of the RuneScape player to add
+
+#### Response
+```json
+{
+    "userId": "string",
+    "playerName": "string"
+}
+```
+
+#### Exceptions
+- `IllegalArgumentException` - If userId or name is null or empty
+- `ResourceNotFoundException` - If user doesn't exist
 
 ## Data Models
 

@@ -192,16 +192,20 @@ build.dependsOn checkGitHooks
 // Lambda handler configurations
 def lambdaHandlers = [
     'getPlayerStats': [
-        handler: 'com.osrs.goals.service.GetPlayerStatsHandler',
+        handler: 'com.osrsGoalTracker.service.GetPlayerStatsHandler',
         description: 'Handler for retrieving player statistics from OSRS hiscores'
     ],
     'getUser': [
-        handler: 'com.osrs.goals.service.GetUserHandler',
+        handler: 'com.osrsGoalTracker.service.GetUserHandler',
         description: 'Handler for retrieving user metadata'
     ],
     'createUser': [
-        handler: 'com.osrs.goals.service.CreateUserHandler',
+        handler: 'com.osrsGoalTracker.service.CreateUserHandler',
         description: 'Handler for creating new users'
+    ],
+    'addPlayerToUser': [
+        handler: 'com.osrsGoalTracker.service.AddPlayerToUserHandler',
+        description: 'Handler for adding a RuneScape player to a user account'
     ]
 ]
 
