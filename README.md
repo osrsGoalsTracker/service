@@ -158,6 +158,37 @@ Adds a RuneScape player to a user's account.
 - `IllegalArgumentException` - If userId or name is null or empty
 - `ResourceNotFoundException` - If user doesn't exist
 
+### Get Players for User
+
+Retrieves all players associated with a user.
+
+**URL**: `/users/{userId}/players`
+
+**Method**: `GET`
+
+**Path Parameters**:
+- `userId` - The ID of the user to get players for
+
+**Response**:
+```json
+{
+    "userId": "string",
+    "playerNames": ["string"]
+}
+```
+
+**Example Response**:
+```json
+{
+    "userId": "123",
+    "playerNames": ["player1", "player2"]
+}
+```
+
+**Error Responses**:
+- `400 Bad Request` - If the request is null, path parameters are null, or userId is null/empty
+- `404 Not Found` - If the user does not exist
+
 ## Data Models
 
 ### User
