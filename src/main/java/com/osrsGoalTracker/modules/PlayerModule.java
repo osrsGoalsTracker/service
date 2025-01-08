@@ -1,21 +1,18 @@
 package com.osrsGoalTracker.modules;
 
 import com.google.inject.AbstractModule;
-import com.osrsGoalTracker.dao.goalTracker.module.GoalTrackerDaoModule;
-import com.osrsGoalTracker.data.PlayerDataService;
-import com.osrsGoalTracker.data.internal.DefaultPlayerDataService;
-import com.osrsGoalTracker.domainlogic.PlayerService;
-import com.osrsGoalTracker.domainlogic.internal.DefaultPlayerService;
+import com.osrsGoalTracker.repository.CharacterRepository;
+import com.osrsGoalTracker.repository.impl.CharacterRepositoryImpl;
+import com.osrsGoalTracker.service.CharacterService;
+import com.osrsGoalTracker.service.impl.CharacterServiceImpl;
 
 /**
- * Guice module for player-related dependency injection.
+ * Guice module for character-related bindings.
  */
 public class PlayerModule extends AbstractModule {
     @Override
     protected void configure() {
-        install(new GoalTrackerDaoModule());
-
-        bind(PlayerService.class).to(DefaultPlayerService.class);
-        bind(PlayerDataService.class).to(DefaultPlayerDataService.class);
+        bind(CharacterRepository.class).to(CharacterRepositoryImpl.class);
+        bind(CharacterService.class).to(CharacterServiceImpl.class);
     }
 }

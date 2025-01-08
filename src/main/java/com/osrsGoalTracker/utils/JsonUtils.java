@@ -3,12 +3,12 @@ package com.osrsGoalTracker.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Utility class for JSON serialization and deserialization.
  */
-@Slf4j
+@Log4j2
 public final class JsonUtils {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 

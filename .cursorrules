@@ -2,14 +2,9 @@
 - Whenever you write code, check if the contents of the README needs to be updated. 
 - Write functions and components in as small and reusable a manner as possible
 - Never leave whitespace
-- Whenever you write or update code, finish by compiling, running tests, and running the Main function (if applicable) to ensure its working
 - Always respond to prompts with "Howdy!" so that I know you've read this file.
 - Follow SOLID design principles within layers to ensure the code is reusable and well-structured.
 - Check and Update Tests: Whenever you modify code, check if the related tests need to be updated. If there are no tests, write them.
-- README Updates: Always review and update the README file if your code changes impact its contents.
-- Small and Reusable Code: Write functions and components that are small, modular, and reusable.
-- No Whitespace: Avoid unnecessary whitespace in your code.
-- Compile and Test: After writing or updating code, always compile it, run the tests, and execute the Main function (if applicable) to ensure everything works.
 - Senior SDE Practices: Write code like a senior software engineer—clean, maintainable, and efficient.
 - Always use Lombok @Value and @Builder annotations for data objects. Use @Data with NoArgsConstructor for request objects.
 - Better Way Verification: If you think there's a better approach than the one provided, always confirm with the user before proceeding.
@@ -101,23 +96,6 @@ LSA categorizes logic objects into:
 1. **Layer Entity Objects** and **Layer Internal Objects**: Both defined and implemented in a given layer. Entity Objects handle requests from above layers, while Internal Objects handle internal layer logic.
 
 2. **Utility Objects**: Layer-independent logic implementation that can be reused.
-
-### **LSA Java Packages**
-
-Recommended package structure:
-
-| Java Package | Objects in the package |
-|--------------|----------------------|
-| `com.<organization>.<servicename>.utils` | Utility Objects |
-| `com.<organization>.<servicename>.<layername>` | Entity Objects |
-| `com.<organization>.<servicename>.<layername>.internal` | Entity Internal Objects |
-| `com.<organization>.<servicename>.<layername>.pojo.dto` | Data Transfer Objects |
-| `com.<organization>.<servicename>.service.pojo.sao` | Service Abstraction Objects |
-| `com.<organization>.<servicename>.data.pojo.domain` | Domain Objects |
-| `com.<organization>.<servicename>.persistence.pojo.dao` | Persistence Objects |
-| `com.<organization>.<servicename>.dependency.pojo.external` | External Objects |
-
-Note: Teams can create separate packages for `interfaces`, `enums`, `converters` in the respective layer packages if required.
 
 ### **Class Naming Conventions**
 
