@@ -27,7 +27,17 @@ public class JagexHiscoresClientImpl implements HiscoresClient {
      */
     @Inject
     public JagexHiscoresClientImpl() {
-        this.osrsApiClient = new OsrsApiClient();
+        this.osrsApiClient = createOsrsApiClient();
+    }
+
+    /**
+     * Creates a new OsrsApiClient instance.
+     * This method can be overridden in tests to provide a mock client.
+     *
+     * @return A new OsrsApiClient instance
+     */
+    protected OsrsApiClient createOsrsApiClient() {
+        return new OsrsApiClient();
     }
 
     @Override
