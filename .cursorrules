@@ -14,99 +14,142 @@
 - Always use 4 spaces for indentation.
 - When implementing a new handler, always ensure that the lambda is built by the build.gradle file and that there are basically 4 lines in the handleRequest function: 1. parse input 2. validate input 3. run service function 4. return output.
 - Always build the project and verify that it compiles and runs correctly before considering your work complete. If there are any errors, fix them.
-- Follow the following service architecture markdown:
+- Follow the following service architecture:
 
 ```
-### **LSA Reference**
+# Layered Architecture Rule Set
 
-### **Use Case**
+This rule set defines how to organize and implement a modular layered architecture for a product, including both domain services (e.g., `UserService`, `CharacterService`) and orchestration Lambdas for event-driven workflows. It outlines layers, interaction rules, service boundaries, and specific patterns to handle cross-cutting concerns like events and shared resources.
 
-LSA (Layered Service Architecture) is a variant of multilayer n-tier architecture pattern specifically tuned for service-oriented architecture (SOA). If a team is designing a new service, LSA is a good starting point. LSA is not very useful for standalone desktop applications, mobile applications, or monolithic web applications. However, frontend services which are part of SOA can use LSA.
+---
 
-LSA is independent of programming paradigms and frameworks. For example, LSA can be used with object-oriented paradigm (e.g., with Java) as well as with multiparadigm implementations (e.g., with Go). It can be used with RPC SOA frameworks as well as with RESTful SOA frameworks.
+## Rule Set
 
-### **LSA Layers**
+### Layer Definitions
 
-Following diagram shows layering in LSA.
+#### Domain Layer (Service-Specific)
 
-[LSA-Diagram.png]
+Each domain (e.g., `User`, `Character`, `Goal`) has its own service responsible for managing the business logic and data access for its entities. It is structured into three sub-layers:
 
-1. **Service Abstraction Layer (SAL)**: Service Abstraction Layer decouples the service interface logic from domain logic. This decoupling is beneficial because service interfaces evolve independently of domain logic.
+1. **Handler Layer**
+   - Contains entry points for APIs (e.g., Lambda handlers or controllers).
+   - Handles input (e.g., HTTP requests or events) and delegates logic to the service layer.
+   - Only calls the service layer.
 
-   **Main Responsibilities**: Expose API endpoints, Interface with SOA framework
+2. **Service Layer**
+   - Encapsulates business logic for the domain.
+   - Uses repository interfaces to fetch or persist data.
+   - Only depends on the repository layer or other services via interfaces.
 
-2. **Domain Logic Layer (DLL)**: This is the core of the service where domain logic related to service responsibility is implemented.
+3. **Repository Layer**
+   - Abstracts data access logic.
+   - Interacts with the underlying data store (e.g., DynamoDB, RDBMS).
+   - Provides methods scoped to the domain (e.g., `findUserById`, `saveGoal`).
+   - Does not call the service layer.
 
-   Domain logic is defined as logic used for functionality that is exposed to other services. For example, a service that stores customer addresses exposes functionality to set/get customer addresses to other services. Domain logic for this service includes validation of the address to be set, generating an ID to identify a given address etc. Other functionalities like how to store address to a database or how to cache it for performance is not domain logic.
+#### Common Layer
 
-3. **Domain Data Layer (DDL)**: Domain Data Layer decouples domain logic layer from the mechanisms. It provides **domain information** that domain logic layer needs in mechanism independent way.
+Contains reusable components across domains:
 
-   **Main Responsibilities**: Decouple external dependencies and data store, Aggregate data if needed, Mechanism independent data processing (caching etc.).
+1. **Shared Models**
+   - Defines domain-agnostic objects (e.g., events like `GoalCreationEvent`) that are shared across services.
 
-   This layer is crucial for:
-   - Managing data from multiple sources (services, databases)
-   - Implementing caching strategies
-   - Abstracting storage mechanisms
-   - Facilitating easier changes to data sources
+2. **Shared Utilities**
+   - Includes helpers for common tasks (e.g., event publishing, validation).
 
-4. **Persistence Abstraction Layer (PAL)**: Persistence Abstraction Layer is responsible for CRUD functionality for persistent storage for the data that service **owns**. It interacts with database technologies like SQL databases, NoSQL databases, etc.
+#### Orchestration Layer
 
-5. **Dependency Abstraction Layer (DAL)**: Dependency Abstraction Layer implements the mechanisms to interface with external downstream services, send requests and process responses.
+Handles AWS-specific orchestration tasks, such as:
 
-### **Interlayer Interactions**
+- Managing AWS resources (e.g., creating SQS queues, associating them with Lambdas).
+- Publishing or consuming events from the event bus.
+- Coordinating interactions between services.
 
-1. Like any other layered architecture, interlayer interaction in LSA is possible only between adjacent layers. For example, Service Abstraction Layer can interact **only** with Domain Logic Layer. This interaction can be in the form of function calls, method calls or even queueing of work.
+**Requirements:**
+- Modular design: Each orchestration workflow (e.g., queue creation, event publishing) is a self-contained module.
+- Reuse shared models and utilities to ensure consistency with the domain layer.
 
-2. Interaction is **always** initiated by layer on top. For example, Domain Logic layer can initiate interaction with Domain Data Layer but not with Service Abstraction Layer.
+#### External Layer
 
-3. Interaction is **always** in the form of request/response. Responses from the layer on the bottom can be synchronous or asynchronous.
+Responsible for managing communication with third-party systems, APIs, or services. This layer:
 
-> 💡 In summary, LSA has 5 abstractions, 4 layers and 3 layer interaction rules. **Any design that follows this 5-4-3 specification can be said to follow LSA regardless of what frameworks or programming languages are used**.
+- Abstracts details like HTTP request/response formats, authentication, and API endpoints.
+- Provides a clean and reusable interface for external communication.
+- Decouples external systems from domain logic.
 
-### **LSA with Java**
+---
 
-When implementing LSA with Java, it's important to follow consistent naming and structure conventions across teams. This consistency helps new engineers quickly understand the codebase and makes design and code reviews more efficient.
+### Rules for Inter-Layer Interaction
 
-**It's important to note that LSA in Java still requires engineers to apply OO design principles like SOLID**. SOLID principles allow reuse/cohesion/coupling inside a layer when LSA mainly focuses on cohesion and decoupling between layers.
+1. **Handler Layer**
+   - Allowed to call: Service layer.
+   - Not allowed to call directly: Repository layer or shared utilities.
 
-### **LSA Objects**
+2. **Service Layer**
+   - Allowed to call: Repository layer, other services via interfaces, shared utilities.
+   - Not allowed to call directly: Handlers or orchestration modules.
 
-1. **Data Objects**: LSA recommends using request-scoped Plain Old Java Objects (POJOs) for data exchange between layers. This makes it easy to follow inter-layer interaction rules.
+3. **Repository Layer**
+   - Allowed to call: Data store (e.g., DynamoDB SDK).
+   - Not allowed to call: Handlers, service layer, or orchestration modules.
 
-2. **Behavior Objects**: LSA recommends using stateless objects for implementation of behavior. Each LSA layer is composed of multiple behavior objects. These objects in a layer are grouped together based on cohesive responsibilities. A group of such cohesive objects in a layer is called a **Layer Entity**.
+4. **Orchestration Layer**
+   - Allowed to call: Shared models/utilities, service layer interfaces.
+   - Not allowed to call directly: Repository layer.
 
-### **Data Object Types**
+---
 
-LSA recommends categorizing state object types:
+### Rules for Inter-Service Interaction
 
-1. **Service Abstraction Objects**: Objects used to exchange information with the clients. For example, API models or DTOs at the service interface level.
+1. **Direct Service-to-Service Interaction**
+   - Use interfaces to define contracts for interactions (e.g., `CharacterService` interface for fetching character data).
+   - Use dependency injection to bind the correct implementation.
 
-2. **Domain Objects**: Objects that represent core domain concepts. For example, in an invoice service, Invoice and Transaction would be domain objects.
+2. **Event-Driven Interaction**
+   - Services can publish domain events (e.g., `GoalCreatedEvent`) to the event bus.
+   - Other services or orchestration Lambdas consume these events and react accordingly.
 
-3. **Persistence Objects**: Objects that handle persistence-related information, including storage-specific details like database keys and indexes.
+3. **Avoid Cross-Service Repository Access**
+   - Services should never directly query another service’s repository. Always go through the service layer or use events for decoupled communication.
 
-4. **External Objects**: Objects that represent data structures for external service interactions.
+---
 
-5. **Data Transfer Objects**: Objects used to transfer data across layer boundaries.
+### Example Tree Structure: Deep Dive into CharacterService
 
-### **Behavior Object Types**
+**Folder Structure**
 
-LSA categorizes logic objects into:
-
-1. **Layer Entity Objects** and **Layer Internal Objects**: Both defined and implemented in a given layer. Entity Objects handle requests from above layers, while Internal Objects handle internal layer logic.
-
-2. **Utility Objects**: Layer-independent logic implementation that can be reused.
-
-### **Class Naming Conventions**
-
-While LSA doesn't mandate specific naming conventions, here are some common patterns:
-
-* Common suffixes for Boundary objects:
-    * `-Controller` or `-Resource` for Boundary Objects in SAL
-    * `-Service` for Boundary Objects in DLL
-    * `-Manager` for Boundary Objects in DDL
-    * `-Repository` for Boundary Objects in PAL
-    * `-Client` for Boundary Objects in DAL
-    * `-Utility` for Utility Objects
-
+src/
+├── main/
+│   ├── java/
+│   │   ├── com/
+│   │   │   ├── example/
+│   │   │   │   ├── character/
+│   │   │   │   │   ├── handler/
+│   │   │   │   │   │   ├── CharacterHandler.java             # Entry point for API
+│   │   │   │   │   ├── service/
+│   │   │   │   │   │   ├── CharacterService.java             # Interface
+│   │   │   │   │   │   ├── CharacterServiceImpl.java         # Business logic
+│   │   │   │   │   ├── repository/
+│   │   │   │   │   │   ├── CharacterRepository.java          # Interface
+│   │   │   │   │   │   ├── CharacterRepositoryImpl.java      # DynamoDB implementation
+│   │   │   │   │   ├── model/
+│   │   │   │   │   │   ├── Character.java                    # Domain object
+│   │   │   │   │   │   ├── CreateCharacterRequest.java       # API request DTO
+│   │   │   │   │   │   ├── CreateCharacterResponse.java      # API response DTO
+│   │   │   │   │   ├── di/
+│   │   │   │   │   │   ├── CharacterModule.java              # Guice DI config
+│   │   │   │   │   ├── api/
+│   │   │   │   │   │   ├── GameApiClient.java                # External API client
+│   │   │   │   │   │   ├── model/
+│   │   │   │   │   │   │   ├── GameCharacterResponse.java    # API response model
+│   │   │   │   ├── orchestration/
+│   │   │   │   │   ├── createGoalCreationEvent/
+│   │   │   │   │   │   ├── CreateGoalCreationEventLambda.java # Entry point
+│   │   │   │   │   │   ├── CreateGoalCreationEventService.java# Logic for publishing event
+│   │   │   │   │   ├── queueCreator/
+│   │   │   │   │   │   ├── QueueCreatorLambda.java           # Entry point
+│   │   │   │   │   │   ├── QueueCreatorService.java          # Logic for queue creation
+│   │   │   │   │   ├── scheduled/
+│   │   │   │   │   │   ├── CronCreatorLambda.java            # Entry point for cron creation
+│   │   │   │   │   │   ├── ScheduledProgressUpdateConsumer.java # Scheduled consumer logic
 ```
