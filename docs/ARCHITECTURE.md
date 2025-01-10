@@ -1,93 +1,139 @@
 # Project Architecture
 
-## Layered Service Architecture (LSA)
+## Layered Architecture Rule Set
 
-The OSRS Goals Service follows a Layered Service Architecture (LSA) pattern, which is specifically designed for service-oriented applications. This architecture provides clear separation of concerns and promotes maintainability and testability.
+This project follows a strict layered architecture pattern designed for AWS Lambda-based microservices. Each domain (e.g., User, Character, Hiscore) is organized into its own module with clear layer separation.
 
-### Layer Overview
+## Layer Definitions
 
-1. **Service Abstraction Layer (SAL)**
-   - AWS Lambda handlers (`*Handler.java`)
-   - Request/response models
-   - Input validation
-   - Error handling and response formatting
+### 1. Handler Layer (`*.handler`)
+- Entry points for AWS Lambda functions
+- Handles API Gateway events and responses
+- Follows a strict 4-step pattern:
+  1. Parse input
+  2. Validate input
+  3. Run service function
+  4. Return output
+- Only depends on the service layer
+- Located in `*.handler` packages
 
-2. **Domain Logic Layer (DLL)**
-   - Service interfaces and implementations (`*Service.java`)
-   - Business logic and rules
-   - Domain model transformations
-   - Core functionality implementation
+### 2. Service Layer (`*.service`)
+- Contains core business logic
+- Defines interfaces and implementations
+- Uses repository interfaces for data access
+- Manages transactions and orchestration
+- Located in `*.service` packages
+- Implementations in `*.service.impl`
 
-3. **Domain Data Layer (DDL)**
-   - Data aggregation and transformation
-   - Caching strategies
-   - Cross-cutting data operations
-   - External service data mapping
+### 3. Repository Layer (`*.repository`)
+- Abstracts data persistence operations
+- Provides DynamoDB implementations
+- Handles data mapping and queries
+- Located in `*.repository` packages
+- Implementations in `*.repository.impl`
 
-4. **Persistence Abstraction Layer (PAL)**
-   - Repository interfaces and implementations (`*Repository.java`)
-   - DynamoDB operations
-   - Data access patterns
-   - Transaction management
+### 4. Model Layer (`*.model`)
+- Domain models using Lombok
+- Request/Response DTOs
+- Uses `@Value` and `@Builder` for immutability
+- Located in `*.model` packages
 
-5. **Dependency Abstraction Layer (DAL)**
-   - External service clients (`*Client.java`)
-   - Third-party API integrations
-   - External system communication
+### 5. External Layer (`*.external`)
+- Handles third-party integrations (e.g., OSRS Hiscores)
+- Abstracts external API calls
+- Located in `*.external` packages
+- Implementations in `*.external.impl`
 
-### Layer Interaction Rules
+### 6. Dependency Injection Layer (`*.di`)
+- Google Guice modules for each domain
+- Binds interfaces to implementations
+- Located in `*.di` packages
 
-1. Layers can only interact with adjacent layers
-2. Communication flows downward, initiated by the upper layer
-3. Each layer operates independently through well-defined interfaces
-4. Dependencies are injected using Google Guice
+## Domain Modules
 
-## Package Structure
+### User Domain (`com.osrsGoalTracker.user`)
+- User account management
+- Authentication and authorization
+- Profile management
+
+### Character Domain (`com.osrsGoalTracker.character`)
+- OSRS character management
+- Character-user associations
+- Character metadata
+
+### Hiscore Domain (`com.osrsGoalTracker.hiscore`)
+- OSRS hiscores integration
+- Skill and activity tracking
+- Historical data management
+
+## Layer Interaction Rules
+
+1. **Handler Layer**
+   - Can only call Service layer
+   - Must follow 4-step pattern
+   - Must handle API Gateway events
+
+2. **Service Layer**
+   - Can call Repository layer
+   - Can call other Services
+   - Can call External layer
+   - Manages transactions
+
+3. **Repository Layer**
+   - Can only access data store
+   - No service layer calls
+   - No cross-repository calls
+
+4. **External Layer**
+   - Can only call external APIs
+   - Must handle retries and failures
+   - Must provide clean interfaces
+
+## Package Structure Example (User Domain)
 
 ```
-com.osrsGoalTracker/
-├── handler/           # SAL - Lambda handlers
-├── service/          # DLL - Business services
-│   └── impl/        
-├── data/             # DDL - Data operations
-├── repository/       # PAL - Data persistence
+com.osrsGoalTracker.user/
+├── di/
+│   └── UserModule.java
+├── handler/
+│   ├── CreateUserHandler.java
+│   ├── GetUserHandler.java
+│   ├── request/
+│   │   └── CreateUserRequest.java
+│   └── response/
+│       └── GetUserResponse.java
+├── model/
+│   └── User.java
+├── repository/
+│   ├── UserRepository.java
 │   └── impl/
-├── external/         # DAL - External services
-│   └── impl/
-├── model/            # Domain models
-├── exception/        # Custom exceptions
-└── util/             # Utility classes
+│       └── UserRepositoryImpl.java
+└── service/
+    ├── UserService.java
+    └── impl/
+        └── UserServiceImpl.java
 ```
 
 ## Development Guidelines
 
 ### 1. Handler Implementation
-
-- Keep handlers thin, focusing on:
-  - Request parsing
-  - Input validation
-  - Service delegation
-  - Response formatting
-
-Example:
 ```java
+public class CreateUserHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 public class GetUserHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     @Inject
-    private UserService userService;
+
     
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
-        // 1. Parse input
+        CreateUserRequest request = parseInput(input);
         String userId = input.getPathParameters().get("userId");
         
-        // 2. Validate input
-        if (StringUtils.isBlank(userId)) {
-            throw new BadRequestException("userId is required");
+        validateRequest(request);
         }
-        
-        // 3. Delegate to service
+        // 3. Run service function
+        User user = userService.createUser(request);
         User user = userService.getUser(userId);
-        
+        // 4. Return output
         // 4. Format response
         return ApiGatewayResponse.builder()
             .setStatusCode(200)
@@ -96,154 +142,90 @@ public class GetUserHandler implements RequestHandler<APIGatewayProxyRequestEven
     }
 }
 ```
+### 2. Model Implementation
+```java
+@Value
+@Builder
+public class User {
+    String userId;
+    String email;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+}
+```
 
-### 2. Service Implementation
-
-- Focus on business logic and domain rules
-- Use interfaces for abstraction
-- Keep methods focused and cohesive
-
+### 3. Service Implementation
 Example:
 ```java
 @Singleton
+    private final UserRepository userRepository;
+
 public class UserServiceImpl implements UserService {
-    @Inject
-    private UserRepository userRepository;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     
-    @Override
-    public User createUser(String email) {
-        // Business logic and validation
-        validateEmail(email);
-        
-        // Create user
-        User user = User.builder()
-            .email(email)
-            .build();
-            
+    public User createUser(CreateUserRequest request) {
+        // Business logic here
         return userRepository.save(user);
     }
 }
 ```
-
-### 3. Repository Implementation
-
-- Focus on data persistence operations
-- Handle database-specific logic
-- Implement efficient data access patterns
-
+### 4. Repository Implementation
 Example:
 ```java
 @Singleton
+    private final DynamoDbClient dynamoDb;
+
 public class UserRepositoryImpl implements UserRepository {
-    @Inject
-    private DynamoDbClient dynamoDb;
+    public UserRepositoryImpl(DynamoDbClient dynamoDb) {
+        this.dynamoDb = dynamoDb;
+    }
+
     
     @Override
-    public User save(User user) {
-        // Convert to DynamoDB item
-        Map<String, AttributeValue> item = convertToItem(user);
-        
-        // Save to DynamoDB
-        dynamoDb.putItem(PutItemRequest.builder()
-            .tableName(TABLE_NAME)
-            .item(item)
-            .build());
-            
+        // DynamoDB operations here
         return user;
     }
 }
 ```
-
-### 4. Testing Strategy
-
+## Testing Strategy
 Each layer should have comprehensive unit tests:
 
-1. **Handler Tests**
+   - Test input parsing
+   - Test validation
+   - Mock service layer
    - Test input validation
-   - Test response formatting
    - Mock service layer
 
 2. **Service Tests**
-   - Test business logic
    - Test error conditions
+   - Test error cases
+   - Test transactions
    - Mock repositories
 
 3. **Repository Tests**
+   - Use DynamoDB Local
+   - Test queries
    - Test data operations
-   - Test error handling
-   - Use DynamoDB Local for integration tests
 
-Example:
-```java
-@ExtendWith(MockitoExtension.class)
-class UserServiceTest {
-    @Mock
-    private UserRepository userRepository;
-    
-    @InjectMocks
-    private UserServiceImpl userService;
-    
-    @Test
-    void createUser_ValidEmail_Success() {
-        // Given
-        String email = "test@example.com";
-        User expectedUser = User.builder().email(email).build();
-        when(userRepository.save(any())).thenReturn(expectedUser);
-        
-        // When
-        User result = userService.createUser(email);
-        
-        // Then
-        assertThat(result).isEqualTo(expectedUser);
-        verify(userRepository).save(any());
-    }
-}
-```
+4. **Integration Tests**
+   - Test full flow
+   - Use test containers
+   - Test error scenarios
 
-## Error Handling
+## Build and Deployment
 
-1. **Custom Exceptions**
-   - `ResourceNotFoundException`
-   - `BadRequestException`
-   - `ServiceException`
+Each Lambda handler is built into its own JAR file using Gradle tasks:
 
-2. **Error Response Format**
-```json
-{
-    "error": {
-        "code": "NOT_FOUND",
-        "message": "User not found",
-        "details": {
-            "userId": "123"
-        }
-    }
-}
-```
+```bash
+# Build individual handlers
+./gradlew buildCreateUserHandler
+./gradlew buildGetUserHandler
+./gradlew buildAddCharacterToUserHandler
 
-## Dependency Injection
-
-The project uses Google Guice for dependency injection:
-
-1. **Module Configuration**
-```java
-public class UserModule extends AbstractModule {
-    @Override
-    protected void configure() {
-        bind(UserService.class).to(UserServiceImpl.class);
-        bind(UserRepository.class).to(UserRepositoryImpl.class);
-    }
-}
-```
-
-2. **Injection Usage**
-```java
-@Singleton
-public class UserServiceImpl {
-    private final UserRepository repository;
-    
-    @Inject
-    public UserServiceImpl(UserRepository repository) {
-        this.repository = repository;
-    }
+# Build all handlers
+./gradlew buildAllHandlers
 }
 ``` 

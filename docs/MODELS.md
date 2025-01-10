@@ -2,42 +2,59 @@
 
 ## Overview
 
-The service uses immutable data models with builder patterns, implemented using Lombok annotations. All models follow consistent patterns for serialization and validation.
+All models in the service follow these principles:
+- Immutable using Lombok `@Value`
+- Builder pattern using Lombok `@Builder`
+- Request objects use `@Data` with `@NoArgsConstructor`
+- Clear separation between domain models and DTOs
+- Validation using Jakarta Validation annotations
 
-## Core Models
+## Domain Models
 
-### User
-
-Represents a user account in the system.
+### User Domain
 
 ```java
 @Value
 @Builder
 public class User {
-    String userId;          // Unique identifier
-    String email;          // User's email address
-    LocalDateTime createdAt; // Account creation timestamp
-    LocalDateTime updatedAt; // Last update timestamp
+    String userId;
+    String email;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }
 ```
 
-### Character
-
-Represents a RuneScape character.
+### Character Domain
 
 ```java
 @Value
 @Builder
 public class Character {
-    String name;           // RuneScape display name
-    LocalDateTime lastUpdated; // Last stats update
-    CharacterHiscores stats; // Current character stats
+    String name;
+    LocalDateTime lastUpdated;
+    List<Skill> skills;
+    List<Activity> activities;
+}
+
+@Value
+@Builder
+public class Skill {
+    String name;
+    int level;
+    long experience;
+    int rank;
+}
+
+@Value
+@Builder
+public class Activity {
+    String name;
+    int score;
+    int rank;
 }
 ```
 
-### CharacterHiscores
-
-Represents a character's skill levels and experience.
+### Hiscore Domain
 
 ```java
 @Value
@@ -46,6 +63,7 @@ public class CharacterHiscores {
     String playerName;
     Map<String, SkillStats> skills;
     Map<String, ActivityStats> activities;
+    LocalDateTime timestamp;
 }
 
 @Value
@@ -64,179 +82,79 @@ public class ActivityStats {
 }
 ```
 
-### Goal
+## Request/Response DTOs
 
-Represents a player's skill or achievement goal.
-
-```java
-@Value
-@Builder
-public class Goal {
-    String goalId;         // Unique identifier
-    String userId;         // Associated user
-    String playerName;     // Associated character
-    GoalType type;        // Type of goal
-    String skillName;      // Target skill (if applicable)
-    long targetValue;      // Target value
-    long currentValue;     // Current progress
-    GoalStatus status;     // Current status
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
-    LocalDateTime targetDate; // Optional deadline
-}
-
-public enum GoalType {
-    SKILL_LEVEL,
-    SKILL_XP,
-    ACTIVITY_SCORE,
-    ACTIVITY_RANK
-}
-
-public enum GoalStatus {
-    IN_PROGRESS,
-    COMPLETED,
-    ABANDONED
-}
-```
-
-## Request/Response Models
-
-### CreateUserRequest
+### User Endpoints
 
 ```java
-@Value
-@Builder
+@Data
+@NoArgsConstructor
 public class CreateUserRequest {
-    @NotBlank
-    @Email
-    String email;
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
+    private String email;
 }
-```
 
-### CreateUserResponse
-
-```java
 @Value
 @Builder
-public class CreateUserResponse {
+public class GetUserResponse {
     String userId;
     String email;
     LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }
 ```
 
-### AddPlayerRequest
+### Character Endpoints
 
 ```java
-@Value
-@Builder
-public class AddPlayerRequest {
-    @NotBlank
-    String playerName;
+@Data
+@NoArgsConstructor
+public class AddCharacterToUserRequest {
+    @NotBlank(message = "Character name is required")
+    private String characterName;
 }
-```
 
-### CreateGoalRequest
-
-```java
 @Value
 @Builder
-public class CreateGoalRequest {
-    @NotBlank
-    String playerName;
-    
-    @NotNull
-    GoalType type;
-    
-    String skillName;
-    
-    @Min(1)
-    long targetValue;
-    
-    LocalDateTime targetDate;
+public class GetCharacterHiscoresResponse {
+    String characterName;
+    Map<String, SkillStats> skills;
+    Map<String, ActivityStats> activities;
+    LocalDateTime timestamp;
 }
 ```
 
 ## Database Models
 
-### UserEntity
-
-DynamoDB representation of a user.
+### DynamoDB Entities
 
 ```java
 @DynamoDBTable(tableName = "Users")
 public class UserEntity {
     @DynamoDBHashKey
-    String userId;
+    private String userId;
     
     @DynamoDBAttribute
-    String email;
+    private String email;
     
     @DynamoDBAttribute
-    String createdAt;
+    private String createdAt;
     
     @DynamoDBAttribute
-    String updatedAt;
+    private String updatedAt;
 }
-```
 
-### CharacterAssociationEntity
-
-DynamoDB representation of user-character association.
-
-```java
-@DynamoDBTable(tableName = "CharacterAssociations")
-public class CharacterAssociationEntity {
+@DynamoDBTable(tableName = "Characters")
+public class CharacterEntity {
     @DynamoDBHashKey
-    String userId;
+    private String userId;
     
     @DynamoDBRangeKey
-    String playerName;
+    private String characterName;
     
     @DynamoDBAttribute
-    String createdAt;
-}
-```
-
-### GoalEntity
-
-DynamoDB representation of a goal.
-
-```java
-@DynamoDBTable(tableName = "Goals")
-public class GoalEntity {
-    @DynamoDBHashKey
-    String goalId;
-    
-    @DynamoDBAttribute
-    String userId;
-    
-    @DynamoDBAttribute
-    String playerName;
-    
-    @DynamoDBAttribute
-    String type;
-    
-    @DynamoDBAttribute
-    String skillName;
-    
-    @DynamoDBAttribute
-    Long targetValue;
-    
-    @DynamoDBAttribute
-    Long currentValue;
-    
-    @DynamoDBAttribute
-    String status;
-    
-    @DynamoDBAttribute
-    String createdAt;
-    
-    @DynamoDBAttribute
-    String updatedAt;
-    
-    @DynamoDBAttribute
-    String targetDate;
+    private String lastUpdated;
 }
 ```
 
@@ -244,16 +162,13 @@ public class GoalEntity {
 
 ```mermaid
 erDiagram
-    User ||--o{ Character : "tracks"
-    Character ||--o{ Goal : "has"
-    Character ||--|| CharacterHiscores : "current_stats"
-    Goal }o--|| GoalType : "type"
-    Goal }o--|| GoalStatus : "status"
+    User ||--o{ Character : "owns"
+    Character ||--|| CharacterHiscores : "has"
+    CharacterHiscores ||--|{ SkillStats : "contains"
+    CharacterHiscores ||--|{ ActivityStats : "contains"
 ```
 
-## Validation
-
-Models use Jakarta Validation annotations:
+## Validation Groups
 
 ```java
 public class ValidationGroups {
@@ -263,27 +178,16 @@ public class ValidationGroups {
 
 @Value
 @Builder
-public class Goal {
-    @NotNull(groups = Update.class)
-    String goalId;
+public class Character {
+    @NotNull(groups = ValidationGroups.Update.class)
+    String name;
     
-    @NotBlank(groups = Create.class)
+    @NotNull(groups = ValidationGroups.Create.class)
     String userId;
-    
-    @NotBlank(groups = Create.class)
-    String playerName;
-    
-    @NotNull(groups = Create.class)
-    GoalType type;
-    
-    @Min(value = 1, groups = {Create.class, Update.class})
-    long targetValue;
 }
 ```
 
-## Serialization
-
-Models use Jackson annotations for JSON handling:
+## JSON Serialization
 
 ```java
 @Value
@@ -296,7 +200,33 @@ public class CharacterHiscores {
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     Map<String, SkillStats> skills;
     
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    Map<String, ActivityStats> activities;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+    LocalDateTime timestamp;
+}
+```
+
+## Model Conversion
+
+Each domain should provide mapper methods for converting between different model representations:
+
+```java
+public class UserMapper {
+    public static User fromEntity(UserEntity entity) {
+        return User.builder()
+            .userId(entity.getUserId())
+            .email(entity.getEmail())
+            .createdAt(parseDateTime(entity.getCreatedAt()))
+            .updatedAt(parseDateTime(entity.getUpdatedAt()))
+            .build();
+    }
+    
+    public static UserEntity toEntity(User user) {
+        UserEntity entity = new UserEntity();
+        entity.setUserId(user.getUserId());
+        entity.setEmail(user.getEmail());
+        entity.setCreatedAt(formatDateTime(user.getCreatedAt()));
+        entity.setUpdatedAt(formatDateTime(user.getUpdatedAt()));
+        return entity;
+    }
 }
 ``` 
