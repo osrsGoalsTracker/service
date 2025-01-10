@@ -78,7 +78,7 @@ dependencies {
     if (useLocalGoalTrackerDao) {
         implementation 'com.osrs.goal:goalTrackerDao:1.0-SNAPSHOT'
     } else {
-        implementation 'com.github.osrsGoalsTracker:goalTrackerDao:2.2.1'
+        implementation 'com.github.osrsGoalsTracker:goalTrackerDao:2.3.0'
     }
 }
 
@@ -192,24 +192,24 @@ build.dependsOn checkGitHooks
 
 // Lambda handler configurations
 def lambdaHandlers = [
-    'getPlayerStats': [
-        handler: 'com.osrsGoalTracker.service.GetPlayerStatsHandler',
+    'getCharacterHiscores': [
+        handler: 'com.osrsGoalTracker.hiscore.handler.GetCharacterHiscores',
         description: 'Handler for retrieving player statistics from OSRS hiscores'
     ],
     'getUser': [
-        handler: 'com.osrsGoalTracker.service.GetUserHandler',
+        handler: 'com.osrsGoalTracker.user.handler.GetUserHandler',
         description: 'Handler for retrieving user metadata'
     ],
     'createUser': [
-        handler: 'com.osrsGoalTracker.service.CreateUserHandler',
+        handler: 'com.osrsGoalTracker.user.handler.CreateUserHandler',
         description: 'Handler for creating new users'
     ],
-    'addPlayerToUser': [
-        handler: 'com.osrsGoalTracker.service.AddPlayerToUserHandler',
+    'addCharacterToUser': [
+        handler: 'com.osrsGoalTracker.character.handler.AddCharacterToUser',
         description: 'Handler for adding a RuneScape player to a user account'
     ],
-    'getPlayersForUser': [
-        handler: 'com.osrsGoalTracker.service.GetPlayersForUserHandler',
+    'getCharactersForUser': [
+        handler: 'com.osrsGoalTracker.character.handler.GetCharactersForUserHandler',
         description: 'Handler for retrieving all players associated with a user'
     ]
 ]

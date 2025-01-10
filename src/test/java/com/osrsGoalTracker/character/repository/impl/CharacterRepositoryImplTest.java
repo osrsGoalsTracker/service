@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.osrsGoalTracker.character.model.Character;
 import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
-import com.osrsGoalTracker.dao.goalTracker.entity.PlayerEntity;
+import com.osrsGoalTracker.dao.goalTracker.entity.CharacterEntity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,14 +38,14 @@ class CharacterRepositoryImplTest {
         String userId = "testUser123";
         String characterName = "TestChar";
         LocalDateTime now = LocalDateTime.now();
-        PlayerEntity playerEntity = PlayerEntity.builder()
+        CharacterEntity characterEntity = CharacterEntity.builder()
                 .name(characterName)
                 .userId(userId)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
 
-        when(goalTrackerDao.addPlayerToUser(userId, characterName)).thenReturn(playerEntity);
+        when(goalTrackerDao.addCharacterToUser(userId, characterName)).thenReturn(characterEntity);
 
         // When
         Character result = characterRepository.addCharacterToUser(userId, characterName);
@@ -53,7 +53,7 @@ class CharacterRepositoryImplTest {
         // Then
         assertEquals(characterName, result.getName());
         assertEquals(userId, result.getUserId());
-        verify(goalTrackerDao).addPlayerToUser(userId, characterName);
+        verify(goalTrackerDao).addCharacterToUser(userId, characterName);
     }
 
     @Test
@@ -85,22 +85,22 @@ class CharacterRepositoryImplTest {
         // Given
         String userId = "testUser123";
         LocalDateTime now = LocalDateTime.now();
-        PlayerEntity player1 = PlayerEntity.builder()
+        CharacterEntity character1 = CharacterEntity.builder()
                 .name("TestChar1")
                 .userId(userId)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
 
-        PlayerEntity player2 = PlayerEntity.builder()
+        CharacterEntity character2 = CharacterEntity.builder()
                 .name("TestChar2")
                 .userId(userId)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
 
-        List<PlayerEntity> playerEntities = Arrays.asList(player1, player2);
-        when(goalTrackerDao.getPlayersForUser(userId)).thenReturn(playerEntities);
+        List<CharacterEntity> characterEntities = Arrays.asList(character1, character2);
+        when(goalTrackerDao.getCharactersForUser(userId)).thenReturn(characterEntities);
 
         // When
         List<Character> result = characterRepository.getCharactersForUser(userId);
@@ -111,7 +111,7 @@ class CharacterRepositoryImplTest {
         assertEquals(userId, result.get(0).getUserId());
         assertEquals("TestChar2", result.get(1).getName());
         assertEquals(userId, result.get(1).getUserId());
-        verify(goalTrackerDao).getPlayersForUser(userId);
+        verify(goalTrackerDao).getCharactersForUser(userId);
     }
 
     @Test

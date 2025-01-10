@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import com.osrsGoalTracker.character.model.Character;
 import com.osrsGoalTracker.character.repository.CharacterRepository;
 import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
-import com.osrsGoalTracker.dao.goalTracker.entity.PlayerEntity;
+import com.osrsGoalTracker.dao.goalTracker.entity.CharacterEntity;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -43,8 +43,8 @@ public class CharacterRepositoryImpl implements CharacterRepository {
 
         log.info("Adding character {} to user {}", trimmedCharacterName, trimmedUserId);
 
-        PlayerEntity player = goalTrackerDao.addPlayerToUser(trimmedUserId, trimmedCharacterName);
-        return convertToCharacter(player);
+        CharacterEntity character = goalTrackerDao.addCharacterToUser(trimmedUserId, trimmedCharacterName);
+        return convertToCharacter(character);
     }
 
     @Override
@@ -56,19 +56,19 @@ public class CharacterRepositoryImpl implements CharacterRepository {
 
         String trimmedUserId = userId.trim();
         log.info("Getting players for user {} from DAO", trimmedUserId);
-        List<PlayerEntity> players = goalTrackerDao.getPlayersForUser(trimmedUserId);
-        return convertToCharacters(players);
+        List<CharacterEntity> characters = goalTrackerDao.getCharactersForUser(trimmedUserId);
+        return convertToCharacters(characters);
     }
 
-    private Character convertToCharacter(PlayerEntity player) {
+    private Character convertToCharacter(CharacterEntity character) {
         return Character.builder()
-                .name(player.getName())
-                .userId(player.getUserId())
+                .name(character.getName())
+                .userId(character.getUserId())
                 .build();
     }
 
-    private List<Character> convertToCharacters(List<PlayerEntity> players) {
-        return players.stream()
+    private List<Character> convertToCharacters(List<CharacterEntity> characters) {
+        return characters.stream()
                 .map(this::convertToCharacter)
                 .collect(Collectors.toList());
     }
