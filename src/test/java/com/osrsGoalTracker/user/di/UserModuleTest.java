@@ -7,28 +7,39 @@ import static org.mockito.Mockito.mock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
 import com.osrsGoalTracker.user.repository.UserRepository;
 import com.osrsGoalTracker.user.repository.impl.UserRepositoryImpl;
 import com.osrsGoalTracker.user.service.UserService;
 import com.osrsGoalTracker.user.service.impl.UserServiceImpl;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class UserModuleTest {
 
-    private static class TestModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(GoalTrackerDao.class).toInstance(mock(GoalTrackerDao.class));
-        }
+    private GoalTrackerDao mockGoalTrackerDao;
+    private Injector injector;
+
+    @BeforeEach
+    void setUp() {
+        mockGoalTrackerDao = mock(GoalTrackerDao.class);
+
+        AbstractModule testModule = new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(GoalTrackerDao.class).toInstance(mockGoalTrackerDao);
+            }
+        };
+
+        injector = Guice.createInjector(
+                Modules.override(new UserModule())
+                        .with(testModule));
     }
 
     @Test
     void testUserModuleBindings() {
-        // Given
-        Injector injector = Guice.createInjector(new UserModule(), new TestModule());
-
         // When
         UserService userService = injector.getInstance(UserService.class);
         UserRepository userRepository = injector.getInstance(UserRepository.class);

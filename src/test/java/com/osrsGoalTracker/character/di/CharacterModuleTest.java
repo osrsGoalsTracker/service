@@ -7,28 +7,39 @@ import static org.mockito.Mockito.mock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 import com.osrsGoalTracker.character.repository.CharacterRepository;
 import com.osrsGoalTracker.character.repository.impl.CharacterRepositoryImpl;
 import com.osrsGoalTracker.character.service.CharacterService;
 import com.osrsGoalTracker.character.service.impl.CharacterServiceImpl;
 import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CharacterModuleTest {
 
-    private static class TestModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(GoalTrackerDao.class).toInstance(mock(GoalTrackerDao.class));
-        }
+    private GoalTrackerDao mockGoalTrackerDao;
+    private Injector injector;
+
+    @BeforeEach
+    void setUp() {
+        mockGoalTrackerDao = mock(GoalTrackerDao.class);
+
+        AbstractModule testModule = new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(GoalTrackerDao.class).toInstance(mockGoalTrackerDao);
+            }
+        };
+
+        injector = Guice.createInjector(
+                Modules.override(new CharacterModule())
+                        .with(testModule));
     }
 
     @Test
     void testCharacterModuleBindings() {
-        // Given
-        Injector injector = Guice.createInjector(new CharacterModule(), new TestModule());
-
         // When
         CharacterService characterService = injector.getInstance(CharacterService.class);
         CharacterRepository characterRepository = injector.getInstance(CharacterRepository.class);

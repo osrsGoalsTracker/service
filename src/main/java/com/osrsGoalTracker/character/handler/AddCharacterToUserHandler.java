@@ -6,7 +6,10 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.osrsGoalTracker.character.di.CharacterModule;
 import com.osrsGoalTracker.character.handler.response.AddCharacterToUserResponse;
 import com.osrsGoalTracker.character.service.CharacterService;
 import com.osrsGoalTracker.utils.JsonUtils;
@@ -17,12 +20,23 @@ import lombok.extern.log4j.Log4j2;
  * Lambda handler for adding a RuneScape player to a user's account.
  */
 @Log4j2
-public class AddCharacterToUser
+public class AddCharacterToUserHandler
         implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private static final int HTTP_OK = 200;
     private static final int HTTP_BAD_REQUEST = 400;
 
     private final CharacterService characterService;
+
+    /**
+     * Default constructor for AWS Lambda.
+     * This constructor is required by AWS Lambda to instantiate the handler.
+     */
+    @Inject
+    public AddCharacterToUserHandler() {
+        Injector injector = Guice.createInjector(new CharacterModule());
+        this.characterService = injector.getInstance(CharacterService.class);
+    }
+
 
     /**
      * Constructor for AddPlayerToUserHandler.
@@ -31,7 +45,7 @@ public class AddCharacterToUser
      *                         to a user.
      */
     @Inject
-    public AddCharacterToUser(CharacterService characterService) {
+    public AddCharacterToUserHandler(CharacterService characterService) {
         this.characterService = characterService;
     }
 

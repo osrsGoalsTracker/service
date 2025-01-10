@@ -21,7 +21,7 @@ import lombok.extern.log4j.Log4j2;
  * the request processing through the application layers.
  */
 @Log4j2
-public class GetCharacterHiscores
+public class GetCharacterHiscoresHandler
         implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final int HTTP_OK = 200;
@@ -35,7 +35,7 @@ public class GetCharacterHiscores
      * Initializes the dependency injection container and retrieves required
      * services.
      */
-    public GetCharacterHiscores() {
+    public GetCharacterHiscoresHandler() {
         Injector injector = Guice.createInjector(new HiscoresModule());
         this.hiscoresService = injector.getInstance(HiscoresService.class);
     }
@@ -46,7 +46,7 @@ public class GetCharacterHiscores
      *
      * @param statsService The service for retrieving player statistics
      */
-    GetCharacterHiscores(HiscoresService hiscoresService) {
+    GetCharacterHiscoresHandler(HiscoresService hiscoresService) {
         this.hiscoresService = hiscoresService;
     }
 

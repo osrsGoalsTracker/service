@@ -23,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class AddCharacterToUserTest {
+class AddCharacterToUserHandlerTest {
 
     @Mock
     private CharacterService characterService;
@@ -31,11 +31,11 @@ class AddCharacterToUserTest {
     @Mock
     private Context context;
 
-    private AddCharacterToUser handler;
+    private AddCharacterToUserHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new AddCharacterToUser(characterService);
+        handler = new AddCharacterToUserHandler(characterService);
     }
 
     @Test

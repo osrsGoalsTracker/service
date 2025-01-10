@@ -26,7 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class GetCharacterHiscoresTest {
+class GetCharacterHiscoresHandlerTest {
 
     @Mock
     private HiscoresService hiscoresService;
@@ -34,12 +34,12 @@ class GetCharacterHiscoresTest {
     @Mock
     private Context context;
 
-    private GetCharacterHiscores handler;
+    private GetCharacterHiscoresHandler handler;
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        handler = new GetCharacterHiscores(hiscoresService);
+        handler = new GetCharacterHiscoresHandler(hiscoresService);
         objectMapper = new ObjectMapper();
     }
 
