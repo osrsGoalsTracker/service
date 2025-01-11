@@ -14,6 +14,7 @@
 - Always use 4 spaces for indentation.
 - When implementing a new handler, always ensure that the lambda is built by the build.gradle file and that there are basically 4 lines in the handleRequest function: 1. parse input 2. validate input 3. run service function 4. return output.
 - Always build the project and verify that it compiles and runs correctly before considering your work complete. If there are any errors, fix them.
+- always add javadoc comments to the code you write.
 - Follow the following service architecture:
 
 ```

@@ -253,3 +253,26 @@ configurations.all {
         exclude group: 'com.google.collections', module: 'google-collections'
     }
 }
+
+// Add these to the list of handlers
+task createNotificationChannelHandler(type: Zip) {
+    archiveBaseName = 'createNotificationChannelHandler'
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+}
+
+task getNotificationChannelsHandler(type: Zip) {
+    archiveBaseName = 'getNotificationChannelsHandler'
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+}
+
+// Add these to the build task dependencies
+build.dependsOn createNotificationChannelHandler
+build.dependsOn getNotificationChannelsHandler
