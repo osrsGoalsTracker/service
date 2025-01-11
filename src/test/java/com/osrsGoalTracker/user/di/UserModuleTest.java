@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.util.Modules;
 import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
 import com.osrsGoalTracker.user.repository.UserRepository;
 import com.osrsGoalTracker.user.repository.impl.UserRepositoryImpl;
@@ -17,25 +16,31 @@ import com.osrsGoalTracker.user.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+
 class UserModuleTest {
 
     private GoalTrackerDao mockGoalTrackerDao;
+    private DynamoDbClient mockDynamoDbClient;
     private Injector injector;
 
     @BeforeEach
     void setUp() {
         mockGoalTrackerDao = mock(GoalTrackerDao.class);
+        mockDynamoDbClient = mock(DynamoDbClient.class);
 
+        // Create a test module that provides all necessary bindings
         AbstractModule testModule = new AbstractModule() {
             @Override
             protected void configure() {
+                bind(DynamoDbClient.class).toInstance(mockDynamoDbClient);
                 bind(GoalTrackerDao.class).toInstance(mockGoalTrackerDao);
+                bind(UserRepository.class).to(UserRepositoryImpl.class);
+                bind(UserService.class).to(UserServiceImpl.class);
             }
         };
 
-        injector = Guice.createInjector(
-                Modules.override(new UserModule())
-                        .with(testModule));
+        injector = Guice.createInjector(testModule);
     }
 
     @Test
