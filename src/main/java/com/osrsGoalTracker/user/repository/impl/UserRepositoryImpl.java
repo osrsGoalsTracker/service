@@ -1,8 +1,8 @@
 package com.osrsGoalTracker.user.repository.impl;
 
 import com.google.inject.Inject;
-import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
-import com.osrsGoalTracker.dao.goalTracker.entity.UserEntity;
+import com.osrsGoalTracker.user.dao.UserDao;
+import com.osrsGoalTracker.user.dao.entity.UserEntity;
 import com.osrsGoalTracker.user.model.User;
 import com.osrsGoalTracker.user.repository.UserRepository;
 
@@ -13,16 +13,16 @@ import lombok.extern.log4j.Log4j2;
  */
 @Log4j2
 public class UserRepositoryImpl implements UserRepository {
-    private final GoalTrackerDao goalTrackerDao;
+    private final UserDao userDao;
 
     /**
      * Constructs a new UserRepositoryImpl.
      *
-     * @param goalTrackerDao The GoalTrackerDao instance to use for data operations
+     * @param userDao The UserDao instance to use for data operations
      */
     @Inject
-    public UserRepositoryImpl(GoalTrackerDao goalTrackerDao) {
-        this.goalTrackerDao = goalTrackerDao;
+    public UserRepositoryImpl(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class UserRepositoryImpl implements UserRepository {
         UserEntity userEntity = UserEntity.builder()
                 .email(trimmedEmail)
                 .build();
-        UserEntity createdUser = goalTrackerDao.createUser(userEntity);
+        UserEntity createdUser = userDao.createUser(userEntity);
         return convertToUser(createdUser);
     }
 
@@ -50,7 +50,7 @@ public class UserRepositoryImpl implements UserRepository {
         String trimmedUserId = userId.trim();
         log.info("Getting user with ID: {}", trimmedUserId);
 
-        UserEntity userEntity = goalTrackerDao.getUser(trimmedUserId);
+        UserEntity userEntity = userDao.getUser(trimmedUserId);
         return convertToUser(userEntity);
     }
 

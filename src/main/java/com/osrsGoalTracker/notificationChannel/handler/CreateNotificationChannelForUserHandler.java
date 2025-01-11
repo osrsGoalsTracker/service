@@ -37,7 +37,7 @@ public class CreateNotificationChannelForUserHandler
     /**
      * Handles the request to create a notification channel.
      * 
-     * @param input The API Gateway request event.
+     * @param input   The API Gateway request event.
      * @param context The AWS Lambda context.
      * @return The API Gateway response event.
      */
@@ -53,8 +53,7 @@ public class CreateNotificationChannelForUserHandler
             NotificationChannel notificationChannel = notificationChannelService.createNotificationChannel(
                     userId,
                     request.getChannelType(),
-                    request.getIdentifier(),
-                    request.isActive());
+                    request.getIdentifier());
 
             // Build response
             CreateNotificationChannelForUserResponse response = CreateNotificationChannelForUserResponse.builder()

@@ -82,6 +82,22 @@ public class ActivityStats {
 }
 ```
 
+### Notification Channel Domain
+
+```java
+@Value
+@Builder
+public class NotificationChannel {
+    String userId;
+    String channelId;
+    String channelType;
+    String identifier;
+    boolean active;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+}
+```
+
 ## Request/Response DTOs
 
 ### User Endpoints
@@ -125,6 +141,27 @@ public class GetCharacterHiscoresResponse {
 }
 ```
 
+### Notification Channel Endpoints
+
+```java
+@Data
+@NoArgsConstructor
+public class CreateNotificationChannelForUserRequest {
+    @NotBlank(message = "Channel type is required")
+    private String channelType;
+
+    @NotBlank(message = "Identifier is required")
+    private String identifier;
+    // Note: Notification channels are active by default upon creation
+}
+
+@Value
+@Builder
+public class GetNotificationChannelsForUserResponse {
+    List<NotificationChannel> notificationChannels;
+}
+```
+
 ## Database Models
 
 ### DynamoDB Entities
@@ -156,6 +193,30 @@ public class CharacterEntity {
     @DynamoDBAttribute
     private String lastUpdated;
 }
+
+@DynamoDBTable(tableName = "NotificationChannels")
+public class NotificationChannelEntity {
+    @DynamoDBHashKey
+    private String userId;
+    
+    @DynamoDBRangeKey
+    private String channelId;
+    
+    @DynamoDBAttribute
+    private String channelType;
+    
+    @DynamoDBAttribute
+    private String identifier;
+    
+    @DynamoDBAttribute
+    private boolean active;
+    
+    @DynamoDBAttribute
+    private String createdAt;
+    
+    @DynamoDBAttribute
+    private String updatedAt;
+}
 ```
 
 ## Model Relationships
@@ -163,6 +224,7 @@ public class CharacterEntity {
 ```mermaid
 erDiagram
     User ||--o{ Character : "owns"
+    User ||--o{ NotificationChannel : "has"
     Character ||--|| CharacterHiscores : "has"
     CharacterHiscores ||--|{ SkillStats : "contains"
     CharacterHiscores ||--|{ ActivityStats : "contains"

@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.osrsGoalTracker.character.model.Character;
-import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
-import com.osrsGoalTracker.dao.goalTracker.entity.CharacterEntity;
+import com.osrsGoalTracker.character.dao.CharacterDao;
+import com.osrsGoalTracker.character.dao.entity.CharacterEntity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,13 +23,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CharacterRepositoryImplTest {
 
     @Mock
-    private GoalTrackerDao goalTrackerDao;
+    private CharacterDao characterDao;
 
     private CharacterRepositoryImpl characterRepository;
 
     @BeforeEach
     void setUp() {
-        characterRepository = new CharacterRepositoryImpl(goalTrackerDao);
+        characterRepository = new CharacterRepositoryImpl(characterDao);
     }
 
     @Test
@@ -45,7 +45,7 @@ class CharacterRepositoryImplTest {
                 .updatedAt(now)
                 .build();
 
-        when(goalTrackerDao.addCharacterToUser(userId, characterName)).thenReturn(characterEntity);
+        when(characterDao.addCharacterToUser(userId, characterName)).thenReturn(characterEntity);
 
         // When
         Character result = characterRepository.addCharacterToUser(userId, characterName);
@@ -53,7 +53,7 @@ class CharacterRepositoryImplTest {
         // Then
         assertEquals(characterName, result.getName());
         assertEquals(userId, result.getUserId());
-        verify(goalTrackerDao).addCharacterToUser(userId, characterName);
+        verify(characterDao).addCharacterToUser(userId, characterName);
     }
 
     @Test
@@ -100,7 +100,7 @@ class CharacterRepositoryImplTest {
                 .build();
 
         List<CharacterEntity> characterEntities = Arrays.asList(character1, character2);
-        when(goalTrackerDao.getCharactersForUser(userId)).thenReturn(characterEntities);
+        when(characterDao.getCharactersForUser(userId)).thenReturn(characterEntities);
 
         // When
         List<Character> result = characterRepository.getCharactersForUser(userId);
@@ -111,7 +111,7 @@ class CharacterRepositoryImplTest {
         assertEquals(userId, result.get(0).getUserId());
         assertEquals("TestChar2", result.get(1).getName());
         assertEquals(userId, result.get(1).getUserId());
-        verify(goalTrackerDao).getCharactersForUser(userId);
+        verify(characterDao).getCharactersForUser(userId);
     }
 
     @Test

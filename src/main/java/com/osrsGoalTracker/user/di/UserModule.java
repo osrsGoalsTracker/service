@@ -3,8 +3,8 @@ package com.osrsGoalTracker.user.di;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
-import com.osrsGoalTracker.dao.goalTracker.internal.ddb.DynamoGoalTrackerDao;
+import com.osrsGoalTracker.user.dao.UserDao;
+import com.osrsGoalTracker.user.dao.impl.DynamoUserDao;
 import com.osrsGoalTracker.shared.di.SharedDynamoDbModule;
 import com.osrsGoalTracker.user.repository.UserRepository;
 import com.osrsGoalTracker.user.repository.impl.UserRepositoryImpl;
@@ -26,7 +26,7 @@ public class UserModule extends AbstractModule {
 
     @Provides
     @Singleton
-    GoalTrackerDao provideGoalTrackerDao(DynamoDbClient dynamoDbClient) {
-        return new DynamoGoalTrackerDao(dynamoDbClient, System.getenv("GOAL_TRACKER_TABLE_NAME"));
+    UserDao provideUserDao(DynamoDbClient dynamoDbClient) {
+        return new DynamoUserDao(dynamoDbClient, System.getenv("USER_TABLE_NAME"));
     }
 }

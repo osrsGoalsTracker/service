@@ -29,18 +29,17 @@ public class NotificationChannelServiceImpl implements NotificationChannelServic
     /**
      * Creates a notification channel for a user.
      * 
-     * @param userId The user ID.
+     * @param userId      The user ID.
      * @param channelType The type of notification channel.
-     * @param identifier The identifier of the notification channel.
-     * @param isActive Whether the notification channel is active.
+     * @param identifier  The identifier of the notification channel.
      * @return The created notification channel.
      */
     @Override
-    public NotificationChannel createNotificationChannel(String userId, String channelType, String identifier,
-            boolean isActive) {
+    public NotificationChannel createNotificationChannel(String userId, String channelType, String identifier) {
         validateCreateNotificationChannelParams(userId, channelType, identifier);
         log.info("Creating notification channel for user {} of type {}", userId, channelType);
-        return notificationChannelRepository.createNotificationChannel(userId, channelType, identifier, isActive);
+        // Always create notification channels as active
+        return notificationChannelRepository.createNotificationChannel(userId, channelType, identifier, true);
     }
 
     /**
@@ -59,9 +58,9 @@ public class NotificationChannelServiceImpl implements NotificationChannelServic
     /**
      * Validates the parameters for creating a notification channel.
      * 
-     * @param userId The user ID.
+     * @param userId      The user ID.
      * @param channelType The type of notification channel.
-     * @param identifier The identifier of the notification channel.
+     * @param identifier  The identifier of the notification channel.
      */
     private void validateCreateNotificationChannelParams(String userId, String channelType, String identifier) {
         validateUserId(userId);

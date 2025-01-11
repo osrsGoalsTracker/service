@@ -4,7 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.osrsGoalTracker.notificationChannel.dao.NotificationChannelDao;
-import com.osrsGoalTracker.notificationChannel.dao.internal.ddb.impl.DynamoNotificationChannelDao;
+import com.osrsGoalTracker.notificationChannel.dao.impl.DynamoNotificationChannelDao;
 import com.osrsGoalTracker.notificationChannel.repository.NotificationChannelRepository;
 import com.osrsGoalTracker.notificationChannel.repository.impl.NotificationChannelRepositoryImpl;
 import com.osrsGoalTracker.notificationChannel.service.NotificationChannelService;

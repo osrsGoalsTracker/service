@@ -78,7 +78,7 @@ dependencies {
     if (useLocalGoalTrackerDao) {
         implementation 'com.osrs.goal:goalTrackerDao:1.0-SNAPSHOT'
     } else {
-        implementation 'com.github.osrsGoalsTracker:goalTrackerDao:2.3.0'
+        implementation 'com.github.osrsGoalsTracker:goalTrackerDao:3.0.0'
     }
 }
 
@@ -211,6 +211,14 @@ def lambdaHandlers = [
     'getCharactersForUser': [
         handler: 'com.osrsGoalTracker.character.handler.GetCharactersForUserHandler',
         description: 'Handler for retrieving all players associated with a user'
+    ],
+    'createNotificationChannelForUser': [
+        handler: 'com.osrsGoalTracker.notificationChannel.handler.CreateNotificationChannelForUserHandler',
+        description: 'Handler for creating a new notification channel for a user'
+    ],
+    'getNotificationChannelsForUser': [
+        handler: 'com.osrsGoalTracker.notificationChannel.handler.GetNotificationChannelsForUserHandler',
+        description: 'Handler for retrieving all notification channels for a user'
     ]
 ]
 

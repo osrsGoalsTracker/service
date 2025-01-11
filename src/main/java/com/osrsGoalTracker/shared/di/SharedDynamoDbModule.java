@@ -8,7 +8,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 /**
- * Shared module for providing DynamoDB client to avoid conflicts between DAOs.
+ * Shared module for providing DynamoDB client.
  */
 public class SharedDynamoDbModule extends AbstractModule {
     @Provides

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.mock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
+import com.osrsGoalTracker.user.dao.UserDao;
 import com.osrsGoalTracker.user.repository.UserRepository;
 import com.osrsGoalTracker.user.repository.impl.UserRepositoryImpl;
 import com.osrsGoalTracker.user.service.UserService;
@@ -20,13 +20,13 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 class UserModuleTest {
 
-    private GoalTrackerDao mockGoalTrackerDao;
+    private UserDao mockUserDao;
     private DynamoDbClient mockDynamoDbClient;
     private Injector injector;
 
     @BeforeEach
     void setUp() {
-        mockGoalTrackerDao = mock(GoalTrackerDao.class);
+        mockUserDao = mock(UserDao.class);
         mockDynamoDbClient = mock(DynamoDbClient.class);
 
         // Create a test module that provides all necessary bindings
@@ -34,7 +34,7 @@ class UserModuleTest {
             @Override
             protected void configure() {
                 bind(DynamoDbClient.class).toInstance(mockDynamoDbClient);
-                bind(GoalTrackerDao.class).toInstance(mockGoalTrackerDao);
+                bind(UserDao.class).toInstance(mockUserDao);
                 bind(UserRepository.class).to(UserRepositoryImpl.class);
                 bind(UserService.class).to(UserServiceImpl.class);
             }

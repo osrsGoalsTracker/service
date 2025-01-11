@@ -18,9 +18,4 @@ public class CreateNotificationChannelForUserRequest {
      * The identifier for the channel (e.g., discord channel ID).
      */
     private String identifier;
-
-    /**
-     * Whether the notification channel is active.
-     */
-    private boolean isActive;
 }

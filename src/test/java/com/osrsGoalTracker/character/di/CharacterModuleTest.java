@@ -12,24 +12,24 @@ import com.osrsGoalTracker.character.repository.CharacterRepository;
 import com.osrsGoalTracker.character.repository.impl.CharacterRepositoryImpl;
 import com.osrsGoalTracker.character.service.CharacterService;
 import com.osrsGoalTracker.character.service.impl.CharacterServiceImpl;
-import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
+import com.osrsGoalTracker.character.dao.CharacterDao;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CharacterModuleTest {
 
-    private GoalTrackerDao mockGoalTrackerDao;
+    private CharacterDao mockCharacterDao;
     private Injector injector;
 
     @BeforeEach
     void setUp() {
-        mockGoalTrackerDao = mock(GoalTrackerDao.class);
+        mockCharacterDao = mock(CharacterDao.class);
 
         AbstractModule testModule = new AbstractModule() {
             @Override
             protected void configure() {
-                bind(GoalTrackerDao.class).toInstance(mockGoalTrackerDao);
+                bind(CharacterDao.class).toInstance(mockCharacterDao);
             }
         };
 

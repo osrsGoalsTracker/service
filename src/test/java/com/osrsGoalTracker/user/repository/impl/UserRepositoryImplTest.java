@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 
-import com.osrsGoalTracker.dao.goalTracker.GoalTrackerDao;
-import com.osrsGoalTracker.dao.goalTracker.entity.UserEntity;
+import com.osrsGoalTracker.user.dao.UserDao;
+import com.osrsGoalTracker.user.dao.entity.UserEntity;
 import com.osrsGoalTracker.user.model.User;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,13 +21,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class UserRepositoryImplTest {
 
     @Mock
-    private GoalTrackerDao goalTrackerDao;
+    private UserDao userDao;
 
     private UserRepositoryImpl userRepository;
 
     @BeforeEach
     void setUp() {
-        userRepository = new UserRepositoryImpl(goalTrackerDao);
+        userRepository = new UserRepositoryImpl(userDao);
     }
 
     @Test
@@ -48,7 +48,7 @@ class UserRepositoryImplTest {
                 .updatedAt(now)
                 .build();
 
-        when(goalTrackerDao.createUser(userEntity)).thenReturn(createdEntity);
+        when(userDao.createUser(userEntity)).thenReturn(createdEntity);
 
         // When
         User result = userRepository.createUser(email);
@@ -58,7 +58,7 @@ class UserRepositoryImplTest {
         assertEquals(email, result.getEmail());
         assertEquals(now, result.getCreatedAt());
         assertEquals(now, result.getUpdatedAt());
-        verify(goalTrackerDao).createUser(userEntity);
+        verify(userDao).createUser(userEntity);
     }
 
     @Test
@@ -93,7 +93,7 @@ class UserRepositoryImplTest {
                 .updatedAt(now)
                 .build();
 
-        when(goalTrackerDao.getUser(userId)).thenReturn(userEntity);
+        when(userDao.getUser(userId)).thenReturn(userEntity);
 
         // When
         User result = userRepository.getUser(userId);
@@ -103,7 +103,7 @@ class UserRepositoryImplTest {
         assertEquals(email, result.getEmail());
         assertEquals(now, result.getCreatedAt());
         assertEquals(now, result.getUpdatedAt());
-        verify(goalTrackerDao).getUser(userId);
+        verify(userDao).getUser(userId);
     }
 
     @Test

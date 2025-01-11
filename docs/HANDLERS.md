@@ -81,6 +81,20 @@ public class SomeHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
 - **Request**: Path parameter `characterName`
 - **Response**: `APIGatewayProxyResponseEvent` with hiscore details
 
+### Notification Channel Management
+
+#### CreateNotificationChannelForUserHandler
+- **Path**: `POST /users/{userId}/notification-channels`
+- **Package**: `com.osrsGoalTracker.notificationChannel.handler.CreateNotificationChannelForUserHandler`
+- **Request**: `CreateNotificationChannelForUserRequest` (channels are created as active by default)
+- **Response**: `APIGatewayProxyResponseEvent` with created notification channel details
+
+#### GetNotificationChannelsForUserHandler
+- **Path**: `GET /users/{userId}/notification-channels`
+- **Package**: `com.osrsGoalTracker.notificationChannel.handler.GetNotificationChannelsForUserHandler`
+- **Request**: Path parameter `userId`
+- **Response**: `APIGatewayProxyResponseEvent` with list of notification channels
+
 ## Error Handling
 
 All handlers use a standardized error handling approach:

@@ -14,12 +14,10 @@ public interface NotificationChannelService {
      * @param userId      The ID of the user
      * @param channelType The type of notification channel (e.g., DISCORD)
      * @param identifier  The identifier for the channel (e.g., discord channel ID)
-     * @param isActive    Whether the notification channel is active
      * @return The created notification channel
      * @throws IllegalArgumentException if any of the parameters are invalid
      */
-    NotificationChannel createNotificationChannel(String userId, String channelType, String identifier,
-            boolean isActive);
+    NotificationChannel createNotificationChannel(String userId, String channelType, String identifier);
 
     /**
      * Retrieves all notification channels for a user.
