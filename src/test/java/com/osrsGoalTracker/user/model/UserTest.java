@@ -3,7 +3,7 @@ package com.osrsGoalTracker.user.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ class UserTest {
         // Given
         String userId = "user123";
         String email = "test@example.com";
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         // When
         User user = User.builder()
@@ -34,7 +34,7 @@ class UserTest {
     @Test
     void testUserEquality() {
         // Given
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         User user1 = User.builder()
                 .userId("user123")
                 .email("test@example.com")
@@ -65,7 +65,7 @@ class UserTest {
     @Test
     void testUserWithDifferentEmail() {
         // Given
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         User user1 = User.builder()
                 .userId("user123")
                 .email("test1@example.com")
@@ -87,8 +87,8 @@ class UserTest {
     @Test
     void testUserWithDifferentTimestamps() {
         // Given
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime later = now.plusHours(1);
+        Instant now = Instant.now();
+        Instant later = now.plusSeconds(1);
 
         User user1 = User.builder()
                 .userId("user123")

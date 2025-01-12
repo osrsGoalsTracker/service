@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import com.osrsGoalTracker.user.model.User;
 import com.osrsGoalTracker.user.repository.UserRepository;
@@ -33,7 +33,7 @@ class UserServiceImplTest {
     void createUser_ValidEmail_ReturnsUser() {
         // Given
         String email = "test@example.com";
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         User expectedUser = User.builder()
                 .userId("user123")
                 .email(email)
@@ -73,7 +73,7 @@ class UserServiceImplTest {
     void getUser_ValidUserId_ReturnsUser() {
         // Given
         String userId = "user123";
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         User expectedUser = User.builder()
                 .userId(userId)
                 .email("test@example.com")

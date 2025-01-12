@@ -1,8 +1,6 @@
 package com.osrsGoalTracker.user.model;
 
-import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.Instant;
 
 import lombok.Builder;
 import lombok.Value;
@@ -26,12 +24,10 @@ public class User {
     /**
      * The timestamp when the user was created.
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private final LocalDateTime createdAt;
+    private final Instant createdAt;
 
     /**
      * The timestamp when the user was last updated.
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private final LocalDateTime updatedAt;
+    private final Instant updatedAt;
 }

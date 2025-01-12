@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,7 +37,7 @@ class CharacterRepositoryImplTest {
         // Given
         String userId = "testUser123";
         String characterName = "TestChar";
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         CharacterEntity characterEntity = CharacterEntity.builder()
                 .name(characterName)
                 .userId(userId)
@@ -84,7 +84,7 @@ class CharacterRepositoryImplTest {
     void getCharactersForUser_ValidUserId_ReturnsCharacters() {
         // Given
         String userId = "testUser123";
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         CharacterEntity character1 = CharacterEntity.builder()
                 .name("TestChar1")
                 .userId(userId)

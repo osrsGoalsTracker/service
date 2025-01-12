@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import com.osrsGoalTracker.user.dao.UserDao;
 import com.osrsGoalTracker.user.dao.entity.UserEntity;
@@ -34,7 +34,7 @@ class UserRepositoryImplTest {
     void createUser_ValidEmail_ReturnsUser() {
         // Given
         String email = "test@example.com";
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         String userId = "user123";
 
         UserEntity userEntity = UserEntity.builder()
@@ -84,7 +84,7 @@ class UserRepositoryImplTest {
         // Given
         String userId = "user123";
         String email = "test@example.com";
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         UserEntity userEntity = UserEntity.builder()
                 .userId(userId)

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ class GetUserHandlerTest {
     void handleRequest_ValidInput_ReturnsSuccessResponse() throws Exception {
         // Given
         String userId = "user123";
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         User user = User.builder()
                 .userId(userId)
                 .email("test@example.com")

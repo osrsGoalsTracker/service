@@ -1,6 +1,6 @@
 package com.osrsGoalTracker.notificationChannel.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import lombok.Builder;
 import lombok.Value;
@@ -34,10 +34,10 @@ public class NotificationChannel {
     /**
      * The timestamp when the notification channel was created.
      */
-    private final LocalDateTime createdAt;
+    private final Instant createdAt;
 
     /**
      * The timestamp when the notification channel was last updated.
      */
-    private final LocalDateTime updatedAt;
+    private final Instant updatedAt;
 }
