@@ -98,6 +98,47 @@ public class NotificationChannel {
 }
 ```
 
+### Goal
+Represents a goal for a character's skill or activity progress.
+
+```java
+@Value
+@Builder
+public class Goal {
+    String userId;              // The ID of the user who owns this goal
+    String goalId;             // The ID of the goal
+    String characterName;      // The name of the character this goal is for
+    String targetAttribute;    // The skill or activity being tracked
+    String targetType;         // The type of target (e.g., "xp", "level")
+    long targetValue;          // The target value to achieve
+    Instant targetDate;        // The date by which to achieve the goal
+    String notificationChannelType; // The type of notification channel to use
+    String frequency;          // How often to check/notify about progress
+    Instant createdAt;         // When this goal was created
+    Instant updatedAt;         // When this goal was last updated
+}
+```
+
+Note: The current progress towards a goal is tracked separately from the goal itself, as it represents the dynamic state rather than the goal's configuration.
+
+### Orchestration Events
+
+```java
+@Value
+@Builder
+public class GoalCreationEvent {
+    String userId;
+    String characterName;
+    String targetAttribute;
+    String targetType;
+    long targetValue;
+    long currentValue;
+    LocalDate targetDate;
+    String notificationChannelType;
+    String frequency;
+}
+```
+
 ## Request/Response DTOs
 
 ### User Endpoints

@@ -95,6 +95,52 @@ public class SomeHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
 - **Request**: Path parameter `userId`
 - **Response**: `APIGatewayProxyResponseEvent` with list of notification channels
 
+### Orchestration Handlers
+
+#### GoalCreationEventHandler
+- **Source**: SQS Queue
+- **Package**: `com.osrsGoalTracker.orchestration.handlers.GoalCreationEventHandler`
+- **Event**: `GoalCreationEvent`
+- **Actions**: 
+  1. Updates notification preferences for the goal
+  2. Schedules initial progress check
+- **Example Event**:
+```json
+{
+    "userId": "user123",
+    "characterName": "playerName",
+    "targetAttribute": "WOODCUTTING",
+    "targetType": "xp",
+    "targetValue": 13034431,
+    "currentValue": 1000000,
+    "targetDate": "2024-12-31",
+    "notificationChannelType": "DISCORD",
+    "frequency": "daily"
+}
+```
+
+### Goal Management
+
+#### CreateGoalFromGoalCreationEventHandler
+- **Source**: EventBridge
+- **Package**: `com.osrsGoalTracker.goal.handler.CreateGoalFromGoalCreationEventHandler`
+- **Event**: `GoalCreationEvent`
+- **Description**: Processes goal creation events from EventBridge, creating goals in the system with their initial progress values.
+- **Example Event**:
+```json
+{
+    "userId": "123",
+    "characterName": "PlayerOne",
+    "metricName": "WOODCUTTING",
+    "targetType": "xp",
+    "targetValue": 1000000,
+    "currentValue": 500000,
+    "targetDate": "2024-12-31T23:59:59Z",
+    "notificationChannelType": "DISCORD",
+    "frequency": "DAILY"
+}
+```
+
 ## Error Handling
 
 All handlers use a standardized error handling approach:

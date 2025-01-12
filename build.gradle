@@ -44,6 +44,7 @@ dependencies {
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
     implementation 'com.amazonaws:aws-lambda-java-events:3.11.4'
     implementation 'software.amazon.awssdk:dynamodb:2.21.0'
+    implementation 'software.amazon.awssdk:dynamodb-enhanced:2.21.0'
     
     // Guice
     implementation 'com.google.inject:guice:7.0.0'
@@ -76,9 +77,9 @@ dependencies {
 
     // Goals DAO - Use local project if available, otherwise use JitPack
     if (useLocalGoalTrackerDao) {
-        implementation 'com.osrs.goal:goalTrackerDao:1.0-SNAPSHOT'
+        implementation files("${localGoalTrackerDaoDir}/build/libs/goalTrackerDao-1.0-SNAPSHOT.jar")
     } else {
-        implementation 'com.github.osrsGoalsTracker:goalTrackerDao:3.0.0'
+        implementation 'com.github.osrsGoalsTracker:goalTrackerDao:3.1.0'
     }
 }
 
@@ -219,14 +220,21 @@ def lambdaHandlers = [
     'getNotificationChannelsForUser': [
         handler: 'com.osrsGoalTracker.notificationChannel.handler.GetNotificationChannelsForUserHandler',
         description: 'Handler for retrieving all notification channels for a user'
+    ],
+    'createGoalFromGoalCreationRequestEvent': [
+        handler: 'com.osrsGoalTracker.goal.handler.CreateGoalFromGoalCreationRequestEventHandler',
+        description: 'Handler for processing goal creation request events from EventBridge'
     ]
 ]
 
 // Create tasks for each Lambda handler
+def handlerTasks = []
 lambdaHandlers.each { name, config ->
-    // Create a JAR task for each handler
-    tasks.register("build${name.capitalize()}Handler", Jar) {
+    def taskName = "${name}Lambda"
+    handlerTasks << taskName
+    tasks.register(taskName, Jar) {
         archiveBaseName = "${name}-lambda"
+        archiveVersion = project.version
         archiveClassifier = null
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
@@ -240,7 +248,7 @@ lambdaHandlers.each { name, config ->
         from sourceSets.main.output
         dependsOn configurations.runtimeClasspath
         from {
-            configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+            configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
         }
     }
 }
@@ -248,12 +256,13 @@ lambdaHandlers.each { name, config ->
 // Task to build all handlers
 tasks.register('buildAllHandlers') {
     description = 'Builds all Lambda handlers'
-    group = 'build'
-    dependsOn tasks.matching { task -> task.name.startsWith('build') && task.name.endsWith('Handler') }
+    dependsOn handlerTasks
 }
 
-// Make the build task depend on buildAllHandlers
-build.dependsOn buildAllHandlers
+// Make build task depend on buildAllHandlers
+tasks.named('build').configure {
+    dependsOn buildAllHandlers
+}
 
 configurations.all {
     resolutionStrategy {
@@ -261,26 +270,3 @@ configurations.all {
         exclude group: 'com.google.collections', module: 'google-collections'
     }
 }
-
-// Add these to the list of handlers
-task createNotificationChannelHandler(type: Zip) {
-    archiveBaseName = 'createNotificationChannelHandler'
-    from compileJava
-    from processResources
-    into('lib') {
-        from configurations.runtimeClasspath
-    }
-}
-
-task getNotificationChannelsHandler(type: Zip) {
-    archiveBaseName = 'getNotificationChannelsHandler'
-    from compileJava
-    from processResources
-    into('lib') {
-        from configurations.runtimeClasspath
-    }
-}
-
-// Add these to the build task dependencies
-build.dependsOn createNotificationChannelHandler
-build.dependsOn getNotificationChannelsHandler

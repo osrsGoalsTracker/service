@@ -13,6 +13,17 @@ This service provides a set of AWS Lambda functions for managing OSRS player goa
 - [Service Interfaces](docs/SERVICES.md) - Service layer interfaces and functionality
 - [Data Models](docs/MODELS.md) - Core data models and their relationships
 
+## Architecture
+
+### Domain Layer
+The service is organized into domain-specific modules (e.g., User, Character, Goal) that handle core business logic.
+
+### Orchestration Layer
+The orchestration layer manages cross-domain interactions through events. It includes:
+- Event models (e.g., GoalCreationEvent)
+- Event handlers
+- Event-driven workflows
+
 ## Requirements
 
 - JDK 21

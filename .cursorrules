@@ -16,6 +16,7 @@
 - Always build the project and verify that it compiles and runs correctly before considering your work complete. If there are any errors, fix them.
 - always add javadoc comments to the code you write.
 - Ensure the docs in docs/ are up to date when you make changes to the code.
+- String comparison should be done using the equalsIgnoreCase method.
 - Follow the following service architecture:
 
 ```
