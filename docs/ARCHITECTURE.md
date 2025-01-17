@@ -2,7 +2,7 @@
 
 ## Layered Architecture Rule Set
 
-This rule set defines how to organize and implement a modular layered architecture for a product, including both domain services (e.g., `UserService`, `CharacterService`, `GoalService`) and orchestration Lambdas for event-driven workflows. It outlines layers, interaction rules, service boundaries, and specific patterns to handle cross-cutting concerns like events and shared resources.
+This rule set defines how to organize and implement a modular layered architecture for a product, including both domain services (e.g., `UserService`, `GoalService`) and orchestration Lambdas for event-driven workflows. It outlines layers, interaction rules, service boundaries, and specific patterns to handle cross-cutting concerns like events and shared resources.
 
 ## Rule Set
 
@@ -10,7 +10,7 @@ This rule set defines how to organize and implement a modular layered architectu
 
 #### Domain Layer (Service-Specific)
 
-Each domain (e.g., `User`, `Character`, `Goal`) has its own service responsible for managing the business logic and data access for its entities. It is structured into three sub-layers:
+Each domain (e.g., `User`, `Goal`) has its own service responsible for managing the business logic and data access for its entities. It is structured into three sub-layers:
 
 1. **Handler Layer**
    - Contains entry points for APIs (e.g., Lambda handlers or controllers).
@@ -175,11 +175,6 @@ Handles cross-domain interactions and event-driven workflows:
 - Authentication and authorization
 - Profile management
 
-### Character Domain (`com.osrsGoalTracker.character`)
-- OSRS character management
-- Character-user associations
-- Character metadata
-
 ### Hiscore Domain (`com.osrsGoalTracker.hiscore`)
 - OSRS hiscores integration
 - Skill and activity tracking
@@ -340,9 +335,7 @@ Each Lambda handler is built into its own JAR file using Gradle tasks:
 
 ```bash
 # Build individual handlers
-./gradlew buildCreateUserHandler
 ./gradlew buildGetUserHandler
-./gradlew buildAddCharacterToUserHandler
 
 # Build all handlers
 ./gradlew buildAllHandlers

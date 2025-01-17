@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
-import com.osrsGoalTracker.character.model.Activity;
-import com.osrsGoalTracker.character.model.Skill;
+import com.osrsGoalTracker.hiscore.model.Activity;
+import com.osrsGoalTracker.hiscore.model.Skill;
 import com.osrsGoalTracker.hiscore.external.HiscoresClient;
 import com.osrsGoalTracker.hiscore.model.CharacterHiscores;
 import com.osrshiscores.apiclient.OsrsApiClient;

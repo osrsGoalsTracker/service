@@ -14,9 +14,9 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.osrsGoalTracker.character.model.Activity;
-import com.osrsGoalTracker.character.model.Skill;
+import com.osrsGoalTracker.hiscore.model.Activity;
 import com.osrsGoalTracker.hiscore.model.CharacterHiscores;
+import com.osrsGoalTracker.hiscore.model.Skill;
 import com.osrsGoalTracker.hiscore.service.HiscoresService;
 
 import org.junit.jupiter.api.BeforeEach;

@@ -37,32 +37,6 @@ public interface UserService {
 }
 ```
 
-### Character Service
-
-```java
-public interface CharacterService {
-    /**
-     * Associates a character with a user.
-     *
-     * @param userId The user's ID
-     * @param request The character association request
-     * @return The created association
-     * @throws ResourceNotFoundException if user doesn't exist
-     * @throws ConflictException if character already associated
-     */
-    Character addCharacterToUser(String userId, AddCharacterToUserRequest request);
-
-    /**
-     * Gets all characters for a user.
-     *
-     * @param userId The user's ID
-     * @return List of characters
-     * @throws ResourceNotFoundException if user doesn't exist
-     */
-    List<Character> getCharactersForUser(String userId);
-}
-```
-
 ### Hiscores Service
 
 ```java

@@ -59,20 +59,6 @@ public class SomeHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
 - **Request**: Path parameter `userId`
 - **Response**: `APIGatewayProxyResponseEvent` with user details
 
-### Character Management
-
-#### AddCharacterToUserHandler
-- **Path**: `POST /users/{userId}/characters`
-- **Package**: `com.osrsGoalTracker.character.handler.AddCharacterToUserHandler`
-- **Request**: `AddCharacterToUserRequest`
-- **Response**: `APIGatewayProxyResponseEvent` with association details
-
-#### GetCharactersForUserHandler
-- **Path**: `GET /users/{userId}/characters`
-- **Package**: `com.osrsGoalTracker.character.handler.GetCharactersForUserHandler`
-- **Request**: Path parameter `userId`
-- **Response**: `APIGatewayProxyResponseEvent` with list of characters
-
 ### Hiscore Management
 
 #### GetCharacterHiscoresHandler

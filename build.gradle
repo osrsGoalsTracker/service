@@ -205,14 +205,6 @@ def lambdaHandlers = [
         handler: 'com.osrsGoalTracker.user.handler.CreateUserHandler',
         description: 'Handler for creating new users'
     ],
-    'addCharacterToUser': [
-        handler: 'com.osrsGoalTracker.character.handler.AddCharacterToUser',
-        description: 'Handler for adding a RuneScape player to a user account'
-    ],
-    'getCharactersForUser': [
-        handler: 'com.osrsGoalTracker.character.handler.GetCharactersForUserHandler',
-        description: 'Handler for retrieving all players associated with a user'
-    ],
     'createNotificationChannelForUser': [
         handler: 'com.osrsGoalTracker.notificationChannel.handler.CreateNotificationChannelForUserHandler',
         description: 'Handler for creating a new notification channel for a user'

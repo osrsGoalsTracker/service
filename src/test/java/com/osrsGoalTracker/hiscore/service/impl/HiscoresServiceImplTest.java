@@ -8,10 +8,10 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 
-import com.osrsGoalTracker.character.model.Activity;
-import com.osrsGoalTracker.character.model.Skill;
 import com.osrsGoalTracker.hiscore.external.impl.JagexHiscoresClientImpl;
 import com.osrsGoalTracker.hiscore.model.CharacterHiscores;
+import com.osrsGoalTracker.hiscore.model.Skill;
+import com.osrsGoalTracker.hiscore.model.Activity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -2,9 +2,6 @@ package com.osrsGoalTracker.hiscore.model;
 
 import java.util.List;
 
-import com.osrsGoalTracker.character.model.Activity;
-import com.osrsGoalTracker.character.model.Skill;
-
 import lombok.Builder;
 import lombok.Value;
 

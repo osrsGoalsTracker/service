@@ -223,18 +223,6 @@ public class UserEntity {
     private String updatedAt;
 }
 
-@DynamoDBTable(tableName = "Characters")
-public class CharacterEntity {
-    @DynamoDBHashKey
-    private String userId;
-    
-    @DynamoDBRangeKey
-    private String characterName;
-    
-    @DynamoDBAttribute
-    private String lastUpdated;
-}
-
 @DynamoDBTable(tableName = "NotificationChannels")
 public class NotificationChannelEntity {
     @DynamoDBHashKey

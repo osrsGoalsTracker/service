@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.osrsGoalTracker.character.model.Activity;
-import com.osrsGoalTracker.character.model.Skill;
 import com.osrsGoalTracker.hiscore.model.CharacterHiscores;
+import com.osrsGoalTracker.hiscore.model.Skill;
+import com.osrsGoalTracker.hiscore.model.Activity;
 import com.osrshiscores.apiclient.OsrsApiClient;
 import com.osrshiscores.apiclient.model.output.OsrsPlayer;
 

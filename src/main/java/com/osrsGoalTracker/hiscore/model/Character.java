@@ -1,4 +1,4 @@
-package com.osrsGoalTracker.character.model;
+package com.osrsGoalTracker.hiscore.model;
 
 import java.time.LocalDateTime;
 

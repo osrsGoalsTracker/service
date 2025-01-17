@@ -8,9 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.util.Arrays;
 import java.util.List;
 
-import com.osrsGoalTracker.character.model.Activity;
-import com.osrsGoalTracker.character.model.Skill;
-
 import org.junit.jupiter.api.Test;
 
 class CharacterHiscoresTest {
